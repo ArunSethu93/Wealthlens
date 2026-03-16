@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WealthLens — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Syne+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">W</div>
+      <div>
+        <div class="logo-name">WealthLens</div>
+        <div class="logo-tagline">Financial OS</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link active"><span class="nav-ico">⬡</span>Dashboard</a>
+      <a href="networth.html" class="nav-link"><span class="nav-ico">◈</span>Net Worth</a>
+      <a href="paycheck.html" class="nav-link"><span class="nav-ico">◎</span>Paycheck</a>
+      <a href="budget.html" class="nav-link"><span class="nav-ico">▦</span>Budget</a>
+      <a href="retirement.html" class="nav-link"><span class="nav-ico">◷</span>Retirement</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="currency-picker-wrap">
+        <label class="field-label">Currency</label>
+        <select id="globalCurrency" class="currency-select" onchange="setCurrency(this.value)">
+          <option value="USD">🇺🇸 USD — US Dollar</option>
+          <option value="EUR">🇪🇺 EUR — Euro</option>
+          <option value="GBP">🇬🇧 GBP — British Pound</option>
+          <option value="INR">🇮🇳 INR — Indian Rupee</option>
+          <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+          <option value="CAD">🇨🇦 CAD — Canadian Dollar</option>
+          <option value="AUD">🇦🇺 AUD — Australian Dollar</option>
+          <option value="SGD">🇸🇬 SGD — Singapore Dollar</option>
+          <option value="AED">🇦🇪 AED — UAE Dirham</option>
+          <option value="CHF">🇨🇭 CHF — Swiss Franc</option>
+          <option value="MXN">🇲🇽 MXN — Mexican Peso</option>
+          <option value="BRL">🇧🇷 BRL — Brazilian Real</option>
+          <option value="KRW">🇰🇷 KRW — South Korean Won</option>
+          <option value="CNY">🇨🇳 CNY — Chinese Yuan</option>
+          <option value="ZAR">🇿🇦 ZAR — South African Rand</option>
+          <option value="NGN">🇳🇬 NGN — Nigerian Naira</option>
+        </select>
+      </div>
+      <div style="font-size:10px;color:var(--c-muted);margin-top:8px;">Data stored locally in browser</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub" id="greeting-sub">Good morning — here's your financial snapshot</p>
+      </div>
+      <div class="topbar-right">
+        <span class="currency-badge" id="currency-badge">USD</span>
+        <button class="icon-btn" onclick="refreshAll()" title="Refresh">↻</button>
+      </div>
+    </header>
+
+    <!-- WEALTH HEALTH SCORE -->
+    <section class="health-hero" id="health-hero">
+      <div class="health-left">
+        <div class="health-label">Wealth Health Score</div>
+        <div class="health-score-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120" width="120" height="120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke-width="10"
+              stroke-dasharray="314.16" stroke-dashoffset="314.16"
+              stroke-linecap="round" transform="rotate(-90 60 60)"
+              id="score-arc" stroke="var(--c-accent)"/>
+          </svg>
+          <div class="score-center">
+            <div class="score-num" id="wh-score">—</div>
+            <div class="score-label" id="wh-grade">—</div>
+          </div>
+        </div>
+        <div class="health-desc" id="wh-desc">Complete your profile to get a score</div>
+      </div>
+      <div class="health-pillars" id="health-pillars">
+        <div class="pillar" id="p-savings">
+          <div class="pillar-label">Savings Rate</div>
+          <div class="pillar-bar-wrap"><div class="pillar-bar" id="pb-savings"></div></div>
+          <div class="pillar-val" id="pv-savings">—</div>
+        </div>
+        <div class="pillar" id="p-emergency">
+          <div class="pillar-label">Emergency Fund</div>
+          <div class="pillar-bar-wrap"><div class="pillar-bar" id="pb-emergency"></div></div>
+          <div class="pillar-val" id="pv-emergency">—</div>
+        </div>
+        <div class="pillar" id="p-dti">
+          <div class="pillar-label">Debt-to-Income</div>
+          <div class="pillar-bar-wrap"><div class="pillar-bar" id="pb-dti"></div></div>
+          <div class="pillar-val" id="pv-dti">—</div>
+        </div>
+        <div class="pillar" id="p-nw">
+          <div class="pillar-label">Net Worth Ratio</div>
+          <div class="pillar-bar-wrap"><div class="pillar-bar" id="pb-nw"></div></div>
+          <div class="pillar-val" id="pv-nw">—</div>
+        </div>
+        <div class="pillar" id="p-invest">
+          <div class="pillar-label">Investment Ratio</div>
+          <div class="pillar-bar-wrap"><div class="pillar-bar" id="pb-invest"></div></div>
+          <div class="pillar-val" id="pv-invest">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI GRID -->
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Net Worth</div>
+        <div class="kpi-value" id="kpi-networth">—</div>
+        <div class="kpi-sub" id="kpi-nw-sub">assets − liabilities</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Monthly Take-Home</div>
+        <div class="kpi-value accent" id="kpi-takehome">—</div>
+        <div class="kpi-sub" id="kpi-th-sub">after tax & deductions</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Monthly Savings</div>
+        <div class="kpi-value green" id="kpi-savings">—</div>
+        <div class="kpi-sub" id="kpi-sav-sub">target from budget plan</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Debt</div>
+        <div class="kpi-value red" id="kpi-debt">—</div>
+        <div class="kpi-sub" id="kpi-debt-sub">across all liabilities</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Emergency Fund</div>
+        <div class="kpi-value" id="kpi-efund">—</div>
+        <div class="kpi-sub" id="kpi-ef-sub">months covered</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Investment Assets</div>
+        <div class="kpi-value blue" id="kpi-invest">—</div>
+        <div class="kpi-sub" id="kpi-inv-sub">portfolio value</div>
+      </div>
+    </div>
+
+    <!-- RATIOS & BENCHMARKS -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">Key Financial Ratios</div>
+        <div id="ratios-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">Financial Milestones</div>
+        <div id="milestones-list"></div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="card" style="margin-top:18px;">
+      <div class="card-header">Quick Actions</div>
+      <div class="quick-actions">
+        <a href="networth.html" class="qa-btn">＋ Add Account</a>
+        <a href="paycheck.html" class="qa-btn">✎ Update Salary</a>
+        <a href="budget.html" class="qa-btn">▤ Adjust Budget</a>
+        <a href="retirement.html" class="qa-btn">◷ Run Projections</a>
+      </div>
+    </div>
+
+    <!-- ALERTS / TIPS -->
+    <div id="alerts-section" style="margin-top:18px;"></div>
+
+  </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// ====== GREETING ======
+(function(){
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting-sub').textContent = greet + ' — here\'s your financial snapshot';
+})();
+
+// ====== WEALTH HEALTH SCORE ENGINE ======
+function calcHealthScore(data) {
+  const { salary, accounts, budgetRule, taxRate, savingsPct } = data;
+  if (!salary) return null;
+
+  const annualNet = salary * (1 - (taxRate||25)/100);
+  const monthlyNet = annualNet / 12;
+
+  const totalAssets = accounts.filter(a=>a.type!=='debt').reduce((s,a)=>s+a.balance,0);
+  const totalDebt   = accounts.filter(a=>a.type==='debt').reduce((s,a)=>s+a.balance,0);
+  const bankBal     = accounts.filter(a=>a.type==='bank').reduce((s,a)=>s+a.balance,0);
+  const investBal   = accounts.filter(a=>a.type==='invest').reduce((s,a)=>s+a.balance,0);
+  const netWorth    = totalAssets - totalDebt;
+
+  const RULES = {
+    '50-30-20': 20, '70-20-10': 20, '80-20': 20,
+    'custom': savingsPct || 20
+  };
+  const savingsRate = RULES[budgetRule] || 20;
+  const monthlySavings = monthlyNet * savingsRate / 100;
+
+  // 1. Savings Rate (20%+): 0–25pts
+  const srScore = Math.min(25, (savingsRate / 20) * 25);
+
+  // 2. Emergency Fund (3–6 months expenses): 0–20pts
+  const monthlyExpenses = monthlyNet * (1 - savingsRate/100);
+  const efMonths = monthlyExpenses > 0 ? bankBal / monthlyExpenses : 0;
+  const efScore = efMonths >= 6 ? 20 : efMonths >= 3 ? 14 : efMonths >= 1 ? 7 : 0;
+
+  // 3. Debt-to-Income Ratio (<36%): 0–20pts
+  const annualDebtService = totalDebt * 0.05; // estimate 5% of balance as annual service
+  const dtiRatio = salary > 0 ? annualDebtService / salary : 1;
+  const dtiScore = dtiRatio <= 0.10 ? 20 : dtiRatio <= 0.20 ? 16 : dtiRatio <= 0.28 ? 10 : dtiRatio <= 0.36 ? 5 : 0;
+
+  // 4. Net Worth vs Annual Income ratio: 0–20pts
+  const nwRatio = salary > 0 ? netWorth / salary : 0;
+  const nwScore = nwRatio >= 2 ? 20 : nwRatio >= 1 ? 15 : nwRatio >= 0.5 ? 10 : nwRatio >= 0 ? 5 : 0;
+
+  // 5. Investment % of assets: 0–15pts
+  const investPct = totalAssets > 0 ? investBal / totalAssets : 0;
+  const investScore = investPct >= 0.5 ? 15 : investPct >= 0.3 ? 10 : investPct >= 0.15 ? 6 : 0;
+
+  const total = Math.round(srScore + efScore + dtiScore + nwScore + investScore);
+
+  return {
+    total, srScore, efScore, dtiScore, nwScore, investScore,
+    savingsRate, efMonths, dtiRatio: dtiRatio*100, nwRatio,
+    investPct: investPct*100,
+    monthlyNet, monthlySavings, totalAssets, totalDebt, netWorth,
+    bankBal, investBal, monthlyExpenses
+  };
+}
+
+function gradeScore(s) {
+  if (s >= 85) return { grade:'Excellent', color:'#22c98a' };
+  if (s >= 70) return { grade:'Good', color:'#5b9cf6' };
+  if (s >= 55) return { grade:'Fair', color:'#f59e3f' };
+  if (s >= 35) return { grade:'Poor', color:'#f97316' };
+  return { grade:'Critical', color:'#f26464' };
+}
+
+function renderHealthScore(r) {
+  if (!r) {
+    document.getElementById('wh-score').textContent = '—';
+    document.getElementById('wh-grade').textContent = 'No data';
+    document.getElementById('wh-desc').textContent = 'Add salary in Paycheck page to begin';
+    return;
+  }
+  const { grade, color } = gradeScore(r.total);
+  document.getElementById('wh-score').textContent = r.total;
+  document.getElementById('wh-grade').textContent = grade;
+  document.getElementById('wh-grade').style.color = color;
+  document.getElementById('score-arc').style.stroke = color;
+  const pct = r.total / 100;
+  const circumference = 314.16;
+  document.getElementById('score-arc').style.strokeDashoffset = circumference * (1 - pct);
+
+  const descs = {
+    Excellent:'Your finances are in outstanding shape. Keep compounding!',
+    Good:'Solid foundations. Focus on accelerating investments.',
+    Fair:'Some gaps to address — prioritize savings rate and emergency fund.',
+    Poor:'Key ratios need attention. Focus on debt reduction first.',
+    Critical:'Immediate action needed — build a cash buffer first.'
+  };
+  document.getElementById('wh-desc').textContent = descs[grade];
+
+  // Pillars
+  function setPillar(id, score, max, val, label, color) {
+    const pct = Math.min(100, (score/max)*100);
+    document.getElementById('pb-' + id).style.width = pct + '%';
+    document.getElementById('pb-' + id).style.background = color;
+    document.getElementById('pv-' + id).textContent = val;
+    document.getElementById('pv-' + id).style.color = color;
+  }
+  setPillar('savings',   r.srScore,    25, r.savingsRate.toFixed(1)+'%', '', pillColor(r.srScore/25));
+  setPillar('emergency', r.efScore,    20, r.efMonths.toFixed(1)+' mo',  '', pillColor(r.efScore/20));
+  setPillar('dti',       r.dtiScore,   20, r.dtiRatio.toFixed(1)+'%',    '', pillColor(r.dtiScore/20));
+  setPillar('nw',        r.nwScore,    20, r.nwRatio.toFixed(2)+'×',     '', pillColor(r.nwScore/20));
+  setPillar('invest',    r.investScore,15, r.investPct.toFixed(1)+'%',   '', pillColor(r.investScore/15));
+}
+
+function pillColor(pct) {
+  if (pct >= 0.8) return '#22c98a';
+  if (pct >= 0.5) return '#5b9cf6';
+  if (pct >= 0.25) return '#f59e3f';
+  return '#f26464';
+}
+
+function renderKPIs(r, cur) {
+  if (!r) return;
+  const f = (v) => formatCurrency(v, cur);
+  document.getElementById('kpi-networth').textContent = f(r.netWorth);
+  document.getElementById('kpi-networth').className = 'kpi-value ' + (r.netWorth >= 0 ? 'green' : 'red');
+  document.getElementById('kpi-takehome').textContent = f(r.monthlyNet);
+  document.getElementById('kpi-savings').textContent = f(r.monthlySavings);
+  document.getElementById('kpi-debt').textContent = f(r.totalDebt);
+  document.getElementById('kpi-efund').textContent = r.efMonths.toFixed(1) + ' mo';
+  document.getElementById('kpi-efund').className = 'kpi-value ' + (r.efMonths >= 3 ? 'green' : 'red');
+  document.getElementById('kpi-invest').textContent = f(r.investBal);
+  document.getElementById('kpi-ef-sub').textContent = r.efMonths >= 3 ? '✓ Target met (3+ mo)' : '✗ Below 3-month target';
+}
+
+function renderRatios(r, cur) {
+  if (!r) return;
+  const f = (v) => formatCurrency(v, cur);
+  const ratios = [
+    { label:'Savings Rate',        val: r.savingsRate.toFixed(1)+'%',       bench:'≥ 20%',    ok: r.savingsRate >= 20 },
+    { label:'Debt-to-Income (est)',val: r.dtiRatio.toFixed(1)+'%',          bench:'< 28%',    ok: r.dtiRatio < 28 },
+    { label:'Emergency Fund',      val: r.efMonths.toFixed(1)+' months',    bench:'3–6 months',ok: r.efMonths >= 3 },
+    { label:'Net Worth / Income',  val: r.nwRatio.toFixed(2)+'×',           bench:'≥ 1×',     ok: r.nwRatio >= 1 },
+    { label:'Investment / Assets', val: r.investPct.toFixed(1)+'%',         bench:'≥ 30%',    ok: r.investPct >= 30 },
+    { label:'Expense Ratio',       val: ((1-r.savingsRate/100)*100).toFixed(1)+'%', bench:'< 80%',ok: r.savingsRate >= 20 },
+    { label:'Liquid Assets',       val: f(r.bankBal),                       bench:'3× monthly',ok: r.bankBal >= r.monthlyNet*3 },
+    { label:'Monthly Surplus',     val: f(r.monthlySavings),                bench:'> 0',      ok: r.monthlySavings > 0 },
+  ];
+  document.getElementById('ratios-list').innerHTML = ratios.map(row => `
+    <div class="ratio-row">
+      <div class="ratio-label">${row.label}</div>
+      <div class="ratio-val" style="color:${row.ok?'#22c98a':'#f26464'}">${row.val}</div>
+      <div class="ratio-bench">${row.bench}</div>
+      <div class="ratio-status">${row.ok ? '✓' : '✗'}</div>
+    </div>`).join('');
+}
+
+function renderMilestones(r, salary, cur) {
+  if (!r || !salary) return;
+  const f = (v) => formatCurrency(v, cur);
+  const milestones = [
+    { label:'First 3-mo emergency fund', target: r.monthlyExpenses*3, current: r.bankBal },
+    { label:'6-month emergency fund',    target: r.monthlyExpenses*6, current: r.bankBal },
+    { label:'Pay off all debt',          target: r.totalDebt,         current: r.totalDebt, invert: true },
+    { label:'Net worth = 1× salary',     target: salary,              current: Math.max(0,r.netWorth) },
+    { label:'Net worth = 3× salary',     target: salary*3,            current: Math.max(0,r.netWorth) },
+    { label:'Net worth = 10× salary',    target: salary*10,           current: Math.max(0,r.netWorth) },
+    { label:'Invest 15% of income',      target: salary*0.15/12,      current: r.monthlySavings, monthly:true },
+    { label:'100K investment milestone', target: 100000,              current: r.investBal },
+  ];
+  document.getElementById('milestones-list').innerHTML = milestones.map(m => {
+    const done = m.invert ? m.current <= 0 : m.current >= m.target;
+    const pct = m.target > 0 ? Math.min(100, (m.current/m.target)*100) : 0;
+    return `<div class="milestone-row ${done?'done':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <div class="milestone-label">${done?'✓ ':''} ${m.label}</div>
+        <div class="milestone-pct">${pct.toFixed(0)}%</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${done?'#22c98a':'#5b9cf6'};"></div></div>
+      <div class="milestone-meta">${f(m.current)} of ${f(m.target)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAlerts(r, cur) {
+  if (!r) return;
+  const alerts = [];
+  if (r.efMonths < 1) alerts.push({ type:'danger', msg:'⚠ Emergency fund is critically low — less than 1 month of expenses in liquid cash.' });
+  else if (r.efMonths < 3) alerts.push({ type:'warn', msg:'⚡ Emergency fund is below the 3-month minimum. Consider pausing extra investments temporarily.' });
+  if (r.dtiRatio > 36) alerts.push({ type:'danger', msg:'⚠ Debt-to-income ratio exceeds 36%. Lenders may flag this — prioritize debt paydown.' });
+  if (r.savingsRate < 10) alerts.push({ type:'warn', msg:'⚡ Savings rate is below 10%. Even small increases now compound significantly over time.' });
+  if (r.investPct < 10 && r.netWorth > 0) alerts.push({ type:'info', msg:'ℹ Only ' + r.investPct.toFixed(1) + '% of your assets are invested. Consider allocating more to grow wealth.' });
+  if (r.netWorth < 0) alerts.push({ type:'danger', msg:'⚠ Your net worth is negative — liabilities exceed assets. Focus on debt reduction.' });
+
+  const el = document.getElementById('alerts-section');
+  if (!alerts.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="card"><div class="card-header">Alerts & Recommendations</div>${
+    alerts.map(a => `<div class="alert alert-${a.type}">${a.msg}</div>`).join('')
+  }</div>`;
+}
+
+function refreshAll() {
+  const cur = getSetting('currency') || 'USD';
+  const salary   = parseFloat(getSetting('salary')||0);
+  const taxRate  = parseFloat(getSetting('taxRate')||25);
+  const accounts = getAccounts();
+  const budgetRule = getSetting('budgetRule') || '50-30-20';
+  const savingsPct = parseFloat(getSetting('savingsPct')||20);
+
+  const r = calcHealthScore({ salary, accounts, budgetRule, taxRate, savingsPct });
+  renderHealthScore(r);
+  renderKPIs(r, cur);
+  renderRatios(r, cur);
+  renderMilestones(r, salary, cur);
+  renderAlerts(r, cur);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const cur = getSetting('currency') || 'USD';
+  document.getElementById('globalCurrency').value = cur;
+  document.getElementById('currency-badge').textContent = cur;
+  refreshAll();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WealthLens — Net Worth</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">W</div>
+      <div><div class="logo-name">WealthLens</div><div class="logo-tagline">Financial OS</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link"><span class="nav-ico">⬡</span>Dashboard</a>
+      <a href="networth.html" class="nav-link active"><span class="nav-ico">◈</span>Net Worth</a>
+      <a href="paycheck.html" class="nav-link"><span class="nav-ico">◎</span>Paycheck</a>
+      <a href="budget.html" class="nav-link"><span class="nav-ico">▦</span>Budget</a>
+      <a href="retirement.html" class="nav-link"><span class="nav-ico">◷</span>Retirement</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="currency-picker-wrap">
+        <label class="field-label">Currency</label>
+        <select class="currency-select" onchange="setCurrency(this.value)"></select>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">Net Worth</h1>
+        <p class="page-sub">Track all assets and liabilities in one place</p>
+      </div>
+      <div class="topbar-right">
+        <span class="currency-badge" id="currency-badge">USD</span>
+      </div>
+    </header>
+
+    <!-- NET WORTH HERO -->
+    <div class="nw-hero" id="nw-hero">
+      <div class="nwh-main">
+        <div class="nwh-label">Total Net Worth</div>
+        <div class="nwh-value" id="nwh-value">—</div>
+        <div class="nwh-formula" id="nwh-formula">Assets − Liabilities</div>
+      </div>
+      <div class="nwh-breakdown">
+        <div class="nwh-stat">
+          <div class="nwh-stat-label">Total Assets</div>
+          <div class="nwh-stat-value green" id="nwh-assets">—</div>
+        </div>
+        <div class="nwh-sep">−</div>
+        <div class="nwh-stat">
+          <div class="nwh-stat-label">Total Liabilities</div>
+          <div class="nwh-stat-value red" id="nwh-debts">—</div>
+        </div>
+        <div class="nwh-sep">=</div>
+        <div class="nwh-stat">
+          <div class="nwh-stat-label">Net Worth</div>
+          <div class="nwh-stat-value" id="nwh-net2" style="color:var(--c-accent)">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="three-col" id="summary-cards">
+      <div class="kpi-card"><div class="kpi-label">Bank / Cash</div><div class="kpi-value green" id="sum-bank">—</div><div class="kpi-sub" id="sub-bank">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Investments</div><div class="kpi-value blue" id="sum-invest">—</div><div class="kpi-sub" id="sub-invest">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Other Assets</div><div class="kpi-value" style="color:var(--c-purple)" id="sum-other">—</div><div class="kpi-sub" id="sub-other">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total Debt</div><div class="kpi-value red" id="sum-debt">—</div><div class="kpi-sub" id="sub-debt">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Debt-to-Asset Ratio</div><div class="kpi-value" id="sum-dta">—</div><div class="kpi-sub">liabilities ÷ assets</div></div>
+      <div class="kpi-card"><div class="kpi-label">Liquidity Ratio</div><div class="kpi-value" id="sum-liq">—</div><div class="kpi-sub">cash ÷ short-term debts</div></div>
+    </div>
+
+    <!-- ADD ACCOUNT -->
+    <div class="card">
+      <div class="card-header">Add Account</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Account Name</label>
+          <input class="field-input" id="acc-name" placeholder="e.g. Vanguard Roth IRA" />
+        </div>
+        <div class="field-group" style="max-width:170px">
+          <label class="field-label">Type</label>
+          <select class="field-input" id="acc-type">
+            <option value="bank">Bank / Cash</option>
+            <option value="savings">Savings Account</option>
+            <option value="invest">Investment / Brokerage</option>
+            <option value="retirement">Retirement (401k/IRA)</option>
+            <option value="crypto">Crypto</option>
+            <option value="property">Real Estate</option>
+            <option value="vehicle">Vehicle</option>
+            <option value="other">Other Asset</option>
+            <option value="credit">Credit Card Debt</option>
+            <option value="loan">Personal Loan</option>
+            <option value="mortgage">Mortgage</option>
+            <option value="student">Student Loan</option>
+            <option value="auto">Auto Loan</option>
+            <option value="debt">Other Debt</option>
+          </select>
+        </div>
+        <div class="field-group" style="max-width:200px">
+          <label class="field-label">Balance</label>
+          <input class="field-input" type="number" id="acc-balance" placeholder="0" min="0" />
+        </div>
+        <div class="field-group" style="max-width:130px">
+          <label class="field-label">Interest Rate %</label>
+          <input class="field-input" type="number" id="acc-rate" placeholder="0.00" step="0.01" />
+        </div>
+        <button class="btn btn-primary" onclick="addAccount()">＋ Add</button>
+      </div>
+    </div>
+
+    <!-- CHART + DONUT ROW -->
+    <div class="two-col">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="card-header" style="margin:0;">Net Worth Over Time</div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm period-btn active" onclick="setPeriod('6m',this)">6M</button>
+            <button class="btn btn-ghost btn-sm period-btn" onclick="setPeriod('1y',this)">1Y</button>
+            <button class="btn btn-ghost btn-sm period-btn" onclick="setPeriod('3y',this)">3Y</button>
+            <button class="btn btn-ghost btn-sm period-btn" onclick="setPeriod('5y',this)">5Y</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="nwChart"></canvas></div>
+        <div style="font-size:11px;color:var(--c-muted);margin-top:8px;">
+          Projected trajectory at current savings rate. Historical bars simulated from current balance.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Asset Allocation</div>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <div style="width:160px;height:160px;position:relative;flex-shrink:0;">
+            <canvas id="donutChart"></canvas>
+            <div id="donut-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--c-text);" id="donut-total">—</div>
+              <div style="font-size:10px;color:var(--c-muted);">assets</div>
+            </div>
+          </div>
+          <div id="donut-legend" style="flex:1;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS BY CATEGORY -->
+    <div class="section-sep">Assets</div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">Bank & Cash</div>
+        <div id="list-bank"></div>
+        <div id="list-savings"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">Investments</div>
+        <div id="list-invest"></div>
+        <div id="list-retirement"></div>
+        <div id="list-crypto"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">Physical Assets</div>
+        <div id="list-property"></div>
+        <div id="list-vehicle"></div>
+        <div id="list-other"></div>
+      </div>
+
+      <div class="card">
+        <!-- DEBT ANALYSIS -->
+        <div class="card-header">Debt Analysis</div>
+        <div id="debt-analysis"></div>
+      </div>
+    </div>
+
+    <div class="section-sep">Liabilities</div>
+    <div class="card">
+      <div id="list-credit"></div>
+      <div id="list-loan"></div>
+      <div id="list-mortgage"></div>
+      <div id="list-student"></div>
+      <div id="list-auto"></div>
+      <div id="list-debt"></div>
+      <div id="debts-empty"></div>
+    </div>
+
+    <!-- NET WORTH PROJECTIONS -->
+    <div class="section-sep" style="margin-top:8px;">Net Worth Projections</div>
+    <div class="card">
+      <div class="card-header">Growth Scenarios — Current Net Worth</div>
+      <div class="three-col" id="scenarios" style="margin-bottom:0;"></div>
+    </div>
+
+  </main>
+</div>
+
+<style>
+.nw-hero {
+  background: linear-gradient(135deg, #0d1f16 0%, #0c1720 100%);
+  border: 1px solid rgba(110,231,183,0.15);
+  border-radius: var(--r-xl); padding: 28px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; flex-wrap: wrap; gap: 20px;
+}
+.nwh-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--c-accent); opacity: 0.7; margin-bottom: 5px; }
+.nwh-value { font-family: var(--font-mono); font-size: 44px; font-weight: 500; letter-spacing: -1px; transition: color 0.3s; }
+.nwh-formula { font-size: 12px; color: var(--c-muted); margin-top: 4px; }
+.nwh-breakdown { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.nwh-stat-label { font-size: 11px; color: var(--c-muted); margin-bottom: 3px; }
+.nwh-stat-value { font-family: var(--font-mono); font-size: 20px; font-weight: 500; }
+.nwh-stat-value.green { color: var(--c-green); }
+.nwh-stat-value.red { color: var(--c-red); }
+.nwh-sep { font-size: 22px; color: var(--c-faint); font-weight: 300; }
+.period-btn.active { background: var(--c-accent-d) !important; color: var(--c-accent) !important; border-color: rgba(110,231,183,0.3) !important; }
+</style>
+
+<script src="shared.js"></script>
+<script>
+let accounts = [];
+let nwChart = null, donutChart = null;
+let currentPeriod = '6m';
+
+const TYPE_CONFIG = {
+  bank:       { label:'Bank / Cash',          icon:'🏦', isDebt:false, color:'#22c98a' },
+  savings:    { label:'Savings Account',       icon:'💰', isDebt:false, color:'#4ade80' },
+  invest:     { label:'Investment',            icon:'📈', isDebt:false, color:'#60a5fa' },
+  retirement: { label:'Retirement',            icon:'🏛', isDebt:false, color:'#818cf8' },
+  crypto:     { label:'Cryptocurrency',        icon:'₿',  isDebt:false, color:'#f59e0b' },
+  property:   { label:'Real Estate',           icon:'🏠', isDebt:false, color:'#c084fc' },
+  vehicle:    { label:'Vehicle',               icon:'🚗', isDebt:false, color:'#94a3b8' },
+  other:      { label:'Other Asset',           icon:'◈',  isDebt:false, color:'#2dd4bf' },
+  credit:     { label:'Credit Card',           icon:'💳', isDebt:true,  color:'#f26464' },
+  loan:       { label:'Personal Loan',         icon:'📋', isDebt:true,  color:'#fb923c' },
+  mortgage:   { label:'Mortgage',              icon:'🏠', isDebt:true,  color:'#f87171' },
+  student:    { label:'Student Loan',          icon:'🎓', isDebt:true,  color:'#fbbf24' },
+  auto:       { label:'Auto Loan',             icon:'🚗', isDebt:true,  color:'#e879f9' },
+  debt:       { label:'Other Debt',            icon:'📌', isDebt:true,  color:'#f43f5e' },
+};
+
+function getNetWorth() {
+  const assets = accounts.filter(a=>!TYPE_CONFIG[a.type]?.isDebt).reduce((s,a)=>s+a.balance,0);
+  const debts  = accounts.filter(a=> TYPE_CONFIG[a.type]?.isDebt).reduce((s,a)=>s+a.balance,0);
+  return { assets, debts, net: assets - debts };
+}
+
+function addAccount() {
+  const name    = document.getElementById('acc-name').value.trim();
+  const type    = document.getElementById('acc-type').value;
+  const balance = parseFloat(document.getElementById('acc-balance').value)||0;
+  const rate    = parseFloat(document.getElementById('acc-rate').value)||0;
+  if (!name) { document.getElementById('acc-name').focus(); return; }
+  accounts.push({ id: Date.now(), name, type, balance, rate });
+  saveAccounts(accounts);
+  document.getElementById('acc-name').value = '';
+  document.getElementById('acc-balance').value = '';
+  document.getElementById('acc-rate').value = '';
+  renderAll();
+}
+
+function deleteAccount(id) {
+  accounts = accounts.filter(a => a.id !== id);
+  saveAccounts(accounts);
+  renderAll();
+}
+
+function editBalance(id) {
+  const acct = accounts.find(a => a.id === id);
+  if (!acct) return;
+  const newBal = prompt(`Update balance for "${acct.name}":`, acct.balance);
+  if (newBal === null) return;
+  acct.balance = parseFloat(newBal) || 0;
+  saveAccounts(accounts);
+  renderAll();
+}
+
+function renderHero(cur) {
+  const { assets, debts, net } = getNetWorth();
+  const f = v => formatCurrency(v, cur);
+  document.getElementById('nwh-value').textContent = f(net);
+  document.getElementById('nwh-value').style.color = net >= 0 ? '#6ee7b7' : '#f26464';
+  document.getElementById('nwh-assets').textContent = f(assets);
+  document.getElementById('nwh-debts').textContent  = f(debts);
+  document.getElementById('nwh-net2').textContent   = f(net);
+  document.getElementById('nwh-formula').textContent = `${f(assets)} − ${f(debts)} = ${f(net)}`;
+}
+
+function renderSummary(cur) {
+  const f = v => formatCurrency(v, cur);
+  const byType = k => accounts.filter(a=>a.type===k).reduce((s,a)=>s+a.balance,0);
+
+  const bank    = byType('bank')  + byType('savings');
+  const invest  = byType('invest')+ byType('retirement')+ byType('crypto');
+  const other   = byType('property')+ byType('vehicle')+ byType('other');
+  const debt    = accounts.filter(a=>TYPE_CONFIG[a.type]?.isDebt).reduce((s,a)=>s+a.balance,0);
+  const assets  = bank + invest + other;
+
+  document.getElementById('sum-bank').textContent   = f(bank);
+  document.getElementById('sum-invest').textContent = f(invest);
+  document.getElementById('sum-other').textContent  = f(other);
+  document.getElementById('sum-debt').textContent   = f(debt);
+
+  const dta = assets > 0 ? (debt/assets*100).toFixed(1)+'%' : '—';
+  document.getElementById('sum-dta').textContent = dta;
+  document.getElementById('sum-dta').style.color = parseFloat(dta) > 50 ? 'var(--c-red)' : 'var(--c-green)';
+
+  const liq = debt > 0 ? (bank/debt).toFixed(2)+'×' : '∞';
+  document.getElementById('sum-liq').textContent = liq;
+  document.getElementById('sum-liq').style.color = parseFloat(liq) >= 1 ? 'var(--c-green)' : 'var(--c-red)';
+
+  document.getElementById('sub-bank').textContent   = accounts.filter(a=>a.type==='bank'||a.type==='savings').length + ' accounts';
+  document.getElementById('sub-invest').textContent = accounts.filter(a=>['invest','retirement','crypto'].includes(a.type)).length + ' accounts';
+  document.getElementById('sub-other').textContent  = accounts.filter(a=>['property','vehicle','other'].includes(a.type)).length + ' accounts';
+  document.getElementById('sub-debt').textContent   = accounts.filter(a=>TYPE_CONFIG[a.type]?.isDebt).length + ' liabilities';
+}
+
+function renderAccountList(containerId, types, cur) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const filtered = accounts.filter(a => (Array.isArray(types) ? types : [types]).includes(a.type));
+  if (!filtered.length) { el.innerHTML = ''; return; }
+  el.innerHTML = filtered.map(a => {
+    const cfg = TYPE_CONFIG[a.type];
+    const isDebt = cfg?.isDebt;
+    const f = v => formatCurrency(v, cur);
+    const rateTag = a.rate ? `<span class="tag tag-${isDebt?'red':'green'}" style="font-size:10px;margin-left:6px;">${a.rate}%</span>` : '';
+    return `<div class="account-row">
+      <div class="acct-left">
+        <div class="acct-icon" style="background:${cfg.color}22;">${cfg.icon}</div>
+        <div>
+          <div class="acct-name">${a.name}${rateTag}</div>
+          <div class="acct-type">${cfg.label}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="acct-amount" style="color:${isDebt?'var(--c-red)':'var(--c-green)'};">${isDebt?'−':''}${f(a.balance)}</div>
+        <button class="btn btn-ghost btn-sm" onclick="editBalance(${a.id})" title="Edit">✎</button>
+        <button class="del-btn" onclick="deleteAccount(${a.id})" title="Delete">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderDebtAnalysis(cur) {
+  const f = v => formatCurrency(v, cur);
+  const debts = accounts.filter(a => TYPE_CONFIG[a.type]?.isDebt);
+  if (!debts.length) {
+    document.getElementById('debt-analysis').innerHTML = '<div class="empty-state"><div class="empty-icon">✓</div>No debts — great!</div>';
+    return;
+  }
+  const totalDebt = debts.reduce((s,d) => s+d.balance, 0);
+  const withRate  = debts.filter(d => d.rate > 0);
+  const wtdRate   = withRate.length
+    ? withRate.reduce((s,d) => s + d.rate*d.balance, 0) / withRate.reduce((s,d) => s+d.balance, 0)
+    : 0;
+
+  document.getElementById('debt-analysis').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="card-sm"><div class="kpi-label">Total Debt</div><div class="kpi-value red">${f(totalDebt)}</div></div>
+      <div class="card-sm"><div class="kpi-label">Weighted Avg Rate</div><div class="kpi-value red">${wtdRate.toFixed(2)}%</div></div>
+    </div>
+    <div class="card-header" style="margin-bottom:10px;">Debt Breakdown</div>
+    ${debts.map(d => {
+      const pct = totalDebt > 0 ? (d.balance/totalDebt)*100 : 0;
+      const cfg = TYPE_CONFIG[d.type];
+      return `<div class="alloc-item">
+        <div class="alloc-header">
+          <div class="alloc-label" style="color:${cfg.color};">${d.name}</div>
+          <div class="alloc-values">${f(d.balance)} · ${pct.toFixed(1)}%${d.rate?' · '+d.rate+'%':''}</div>
+        </div>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:${pct}%;background:${cfg.color};"></div></div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function renderDebtsList(cur) {
+  const debtTypes = ['credit','loan','mortgage','student','auto','debt'];
+  let anyDebts = false;
+  debtTypes.forEach(t => {
+    const el = document.getElementById('list-'+t);
+    const items = accounts.filter(a => a.type === t);
+    if (items.length) anyDebts = true;
+    if (el) el.innerHTML = items.length ? items.map(a => {
+      const cfg = TYPE_CONFIG[a.type];
+      const f = v => formatCurrency(v, cur);
+      return `<div class="account-row">
+        <div class="acct-left">
+          <div class="acct-icon" style="background:${cfg.color}22;">${cfg.icon}</div>
+          <div>
+            <div class="acct-name">${a.name} ${a.rate?`<span class="tag tag-red" style="font-size:10px;">${a.rate}%</span>`:''}</div>
+            <div class="acct-type">${cfg.label}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="acct-amount" style="color:var(--c-red);">−${f(a.balance)}</div>
+          <button class="btn btn-ghost btn-sm" onclick="editBalance(${a.id})">✎</button>
+          <button class="del-btn" onclick="deleteAccount(${a.id})">✕</button>
+        </div>
+      </div>`;
+    }).join('') : '';
+  });
+  const emptyEl = document.getElementById('debts-empty');
+  if (emptyEl) emptyEl.innerHTML = !anyDebts ? '<div class="empty-state"><div class="empty-icon">✓</div>No liabilities added — debt-free!</div>' : '';
+}
+
+function renderCharts(cur) {
+  renderNWChart(cur);
+  renderDonut(cur);
+}
+
+function setPeriod(p, btn) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNWChart(getSetting('currency') || 'USD');
+}
+
+function renderNWChart(cur) {
+  const ctx = document.getElementById('nwChart').getContext('2d');
+  const { net } = getNetWorth();
+  const salary = parseFloat(getSetting('salary') || 0);
+  const bd = getBudgetData();
+  const salaryData = getSalaryData();
+  const annualNet = salaryData.salary * (1 - (salaryData.taxRate||25)/100);
+  const monthlyNet = annualNet / 12;
+  const savingsPct = bd.rule === '50-30-20' ? 20 : bd.rule === '70-20-10' ? 20 : bd.rule === '80-20' ? 20 : 20;
+  const monthlySavings = monthlyNet * savingsPct / 100;
+
+  const periods = { '6m':6, '1y':12, '3y':36, '5y':60 };
+  const months = periods[currentPeriod];
+  const GROWTH = 0.006; // 0.6%/mo
+
+  const labels = [], historical = [], projected = [];
+  const now = new Date();
+  const mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  for (let i = months; i >= 0; i--) {
+    const d = new Date(now); d.setMonth(d.getMonth() - i);
+    labels.push(mNames[d.getMonth()] + (currentPeriod === '3y'||currentPeriod==='5y' ? " '" + String(d.getFullYear()).slice(2) : ''));
+    const past = net * Math.pow(1 - GROWTH, i) * (0.98 + Math.random()*0.04);
+    historical.push(Math.round(past));
+  }
+  historical[historical.length - 1] = net;
+
+  for (let i = 0; i <= months; i++) {
+    const fv = calcFutureValue(net, GROWTH*12*100, i/12, monthlySavings);
+    projected.push(Math.round(fv));
+  }
+
+  if (nwChart) nwChart.destroy();
+  const isPos = net >= 0;
+  nwChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Historical',
+          data: historical,
+          borderColor: isPos ? '#22c98a' : '#f26464',
+          backgroundColor: (c) => {
+            const g = c.chart.ctx.createLinearGradient(0,0,0,200);
+            g.addColorStop(0, isPos ? 'rgba(34,201,138,0.15)' : 'rgba(242,100,100,0.15)');
+            g.addColorStop(1, 'rgba(0,0,0,0)');
+            return g;
+          },
+          borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 5,
+        },
+        {
+          label: 'Projected',
+          data: projected,
+          borderColor: '#60a5fa',
+          borderDash: [5,4],
+          borderWidth: 1.5, fill: false, tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { color: '#6b7585', font: { size: 11 }, boxWidth: 12, padding: 12 } },
+        tooltip: {
+          backgroundColor: '#1a1e26', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
+          titleColor: '#6b7585', bodyColor: '#dde2ea',
+          callbacks: { label: c => ' ' + formatCurrency(c.parsed.y, cur) }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6b7585', font:{size:11}, maxRotation:0 } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6b7585', font:{size:11}, callback: v => fmtShort(v, cur) } }
+      }
+    }
+  });
+}
+
+function renderDonut(cur) {
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  const assetGroups = [
+    { label:'Cash/Bank',    val: accounts.filter(a=>['bank','savings'].includes(a.type)).reduce((s,a)=>s+a.balance,0), color:'#22c98a' },
+    { label:'Investments',  val: accounts.filter(a=>['invest','retirement'].includes(a.type)).reduce((s,a)=>s+a.balance,0), color:'#60a5fa' },
+    { label:'Crypto',       val: accounts.filter(a=>a.type==='crypto').reduce((s,a)=>s+a.balance,0), color:'#f59e0b' },
+    { label:'Real Estate',  val: accounts.filter(a=>a.type==='property').reduce((s,a)=>s+a.balance,0), color:'#c084fc' },
+    { label:'Other',        val: accounts.filter(a=>['vehicle','other'].includes(a.type)).reduce((s,a)=>s+a.balance,0), color:'#94a3b8' },
+  ].filter(g => g.val > 0);
+
+  const total = assetGroups.reduce((s,g) => s+g.val, 0);
+  document.getElementById('donut-total').textContent = fmtShort(total, cur);
+
+  if (!assetGroups.length) {
+    if (donutChart) { donutChart.destroy(); donutChart = null; }
+    document.getElementById('donut-legend').innerHTML = '<div class="empty-state"><div class="empty-icon">◯</div>No assets</div>';
+    return;
+  }
+
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: assetGroups.map(g=>g.label),
+      datasets: [{ data: assetGroups.map(g=>g.val), backgroundColor: assetGroups.map(g=>g.color), borderWidth:2, borderColor:'#13161c' }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins: { legend:{display:false}, tooltip:{ callbacks:{ label:c=>' '+formatCurrency(c.parsed,cur)+' ('+((c.parsed/total)*100).toFixed(1)+'%)' }}}
+    }
+  });
+
+  document.getElementById('donut-legend').innerHTML = assetGroups.map(g => `
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+      <div style="width:10px;height:10px;border-radius:2px;background:${g.color};flex-shrink:0;"></div>
+      <div style="font-size:12px;flex:1;">${g.label}</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--c-muted);">${((g.val/total)*100).toFixed(1)}%</div>
+    </div>`).join('');
+}
+
+function renderScenarios(cur) {
+  const { net } = getNetWorth();
+  const f = v => formatCurrency(v, cur);
+  const scenarios = [
+    { name:'Conservative',   rate:4,  color:'#94a3b8' },
+    { name:'Moderate',       rate:7,  color:'#60a5fa' },
+    { name:'Aggressive',     rate:10, color:'#22c98a' },
+  ];
+  const bd = getSalaryData();
+  const annualNet = bd.salary * (1-(bd.taxRate||25)/100);
+  const monthlySavings = annualNet/12*0.2;
+
+  document.getElementById('scenarios').innerHTML = scenarios.map(s => {
+    const y5  = calcFutureValue(net, s.rate, 5, monthlySavings);
+    const y10 = calcFutureValue(net, s.rate, 10, monthlySavings);
+    const y20 = calcFutureValue(net, s.rate, 20, monthlySavings);
+    return `<div class="card-sm" style="border-left:3px solid ${s.color};">
+      <div class="kpi-label" style="color:${s.color};">${s.name} (${s.rate}% / yr)</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--c-muted);">5 Years</span><span style="font-family:var(--font-mono);color:${s.color};">${f(y5)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--c-muted);">10 Years</span><span style="font-family:var(--font-mono);color:${s.color};">${f(y10)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--c-muted);">20 Years</span><span style="font-family:var(--font-mono);color:${s.color};">${f(y20)}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAll() {
+  const cur = getSetting('currency') || 'USD';
+  accounts = getAccounts();
+  renderHero(cur);
+  renderSummary(cur);
+  ['bank','savings','invest','retirement','crypto','property','vehicle','other'].forEach(t => renderAccountList('list-'+t, [t], cur));
+  renderDebtAnalysis(cur);
+  renderDebtsList(cur);
+  renderCharts(cur);
+  renderScenarios(cur);
+}
+
+// init currency selectors
+document.addEventListener('DOMContentLoaded', () => {
+  const cur = getSetting('currency') || 'USD';
+  const sel = document.querySelector('.currency-select');
+  if (sel) {
+    Object.keys(CURRENCIES).forEach(c => {
+      const o = document.createElement('option');
+      o.value = c; o.textContent = c + ' — ' + ({ USD:'US Dollar',EUR:'Euro',GBP:'British Pound',INR:'Indian Rupee',JPY:'Japanese Yen',CAD:'Canadian Dollar',AUD:'Australian Dollar',SGD:'Singapore Dollar',AED:'UAE Dirham',CHF:'Swiss Franc',MXN:'Mexican Peso',BRL:'Brazilian Real',KRW:'Korean Won',CNY:'Chinese Yuan',ZAR:'South African Rand',NGN:'Nigerian Naira' }[c]||c);
+      if (c === cur) o.selected = true;
+      sel.appendChild(o);
+    });
+  }
+  renderAll();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WealthLens — Budget Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">W</div>
+      <div><div class="logo-name">WealthLens</div><div class="logo-tagline">Financial OS</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link"><span class="nav-ico">⬡</span>Dashboard</a>
+      <a href="networth.html" class="nav-link"><span class="nav-ico">◈</span>Net Worth</a>
+      <a href="paycheck.html" class="nav-link"><span class="nav-ico">◎</span>Paycheck</a>
+      <a href="budget.html" class="nav-link active"><span class="nav-ico">▦</span>Budget</a>
+      <a href="retirement.html" class="nav-link"><span class="nav-ico">◷</span>Retirement</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="currency-picker-wrap">
+        <label class="field-label">Currency</label>
+        <select class="currency-select" onchange="setCurrency(this.value)"></select>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">Budget Planner</h1>
+        <p class="page-sub">Allocate every paycheck and track actual spending vs plan</p>
+      </div>
+      <div class="topbar-right">
+        <span class="currency-badge" id="currency-badge">USD</span>
+      </div>
+    </header>
+
+    <!-- INCOME SOURCE -->
+    <div class="card">
+      <div class="card-header">Monthly Income Basis</div>
+      <div class="field-row" style="margin-bottom:12px;">
+        <div class="field-group">
+          <label class="field-label">Monthly Take-Home (from paycheck)</label>
+          <input class="field-input" type="number" id="monthlyIncome" placeholder="4500" oninput="updateBudget()" />
+        </div>
+        <div class="field-group" style="max-width:180px;">
+          <label class="field-label">Additional Monthly Income</label>
+          <input class="field-input" type="number" id="extraIncome" placeholder="0" oninput="updateBudget()" />
+        </div>
+        <div style="flex-shrink:0;display:flex;align-items:flex-end;">
+          <button class="btn btn-ghost" onclick="loadFromPaycheck()">↓ Load from Paycheck</button>
+        </div>
+      </div>
+      <div class="salary-bar" style="margin-bottom:0;">
+        <div class="sbar-item"><div class="sbar-label">Monthly Gross</div><div class="sbar-value" id="b-gross">—</div></div>
+        <div class="sbar-item"><div class="sbar-label">Monthly Take-Home</div><div class="sbar-value" style="color:var(--c-accent);" id="b-takehome">—</div></div>
+        <div class="sbar-item"><div class="sbar-label">Budgeted Expenses</div><div class="sbar-value" style="color:var(--c-amber);" id="b-expenses">—</div></div>
+        <div class="sbar-item"><div class="sbar-label">Planned Savings</div><div class="sbar-value" style="color:var(--c-green);" id="b-savings">—</div></div>
+        <div class="sbar-item"><div class="sbar-label">Actual Spent</div><div class="sbar-value" style="color:var(--c-red);" id="b-actual">—</div></div>
+        <div class="sbar-item"><div class="sbar-label">Remaining</div><div class="sbar-value" id="b-remaining">—</div></div>
+      </div>
+    </div>
+
+    <!-- BUDGET FRAMEWORK -->
+    <div class="section-sep">Budget Framework</div>
+    <div class="rule-grid">
+      <div class="rule-card selected" id="rule-50-30-20" onclick="selectRule('50-30-20',this)">
+        <div class="rule-name">50/30/20</div>
+        <div class="rule-desc">Needs · Wants · Savings</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Most popular framework</div>
+      </div>
+      <div class="rule-card" id="rule-70-20-10" onclick="selectRule('70-20-10',this)">
+        <div class="rule-name">70/20/10</div>
+        <div class="rule-desc">Living · Savings · Debt</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Good for high-debt situations</div>
+      </div>
+      <div class="rule-card" id="rule-80-20" onclick="selectRule('80-20',this)">
+        <div class="rule-name">80/20</div>
+        <div class="rule-desc">Life · Pay Yourself First</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Simplest approach</div>
+      </div>
+      <div class="rule-card" id="rule-zero" onclick="selectRule('zero',this)">
+        <div class="rule-name">Zero</div>
+        <div class="rule-desc">Every dollar assigned</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Maximum control</div>
+      </div>
+      <div class="rule-card" id="rule-60-20-20" onclick="selectRule('60-20-20',this)">
+        <div class="rule-name">60/20/20</div>
+        <div class="rule-desc">Committed · Goals · Fun</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Richard Jenkins method</div>
+      </div>
+      <div class="rule-card" id="rule-dave" onclick="selectRule('dave',this)">
+        <div class="rule-name">Dave R.</div>
+        <div class="rule-desc">Baby steps approach</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Debt elimination focus</div>
+      </div>
+      <div class="rule-card" id="rule-kakeibo" onclick="selectRule('kakeibo',this)">
+        <div class="rule-name">Kakeibo</div>
+        <div class="rule-desc">4-category Japanese method</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Mindful spending</div>
+      </div>
+      <div class="rule-card" id="rule-custom" onclick="selectRule('custom',this)">
+        <div class="rule-name">Custom</div>
+        <div class="rule-desc">Set your own splits</div>
+        <div style="font-size:9px;color:var(--c-muted);margin-top:5px;">Full control</div>
+      </div>
+    </div>
+
+    <!-- CUSTOM INPUT -->
+    <div id="custom-wrap" class="card" style="display:none;margin-top:-4px;">
+      <div class="card-header">Custom Buckets</div>
+      <div id="custom-buckets"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addCustomBucket()" style="margin-top:8px;">＋ Add Bucket</button>
+    </div>
+
+    <!-- ALLOCATION + CHART -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header" id="framework-name">50/30/20 Allocation</div>
+        <div id="alloc-bars"></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--c-muted);margin-bottom:8px;">Effective Savings Rate</div>
+          <div id="savings-rate-display"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Budget Donut</div>
+        <div style="width:200px;height:200px;margin:0 auto 14px;">
+          <canvas id="budgetDonut"></canvas>
+        </div>
+        <div id="donut-legend"></div>
+      </div>
+    </div>
+
+    <!-- PER-PAYCHECK BREAKDOWN -->
+    <div class="card">
+      <div class="card-header">Per-Paycheck Allocation</div>
+      <div class="field-row" style="margin-bottom:14px;">
+        <div class="field-group" style="max-width:200px;">
+          <label class="field-label">Pay Frequency</label>
+          <select class="field-input" id="bPayFreq" onchange="updateBudget()">
+            <option value="12">Monthly</option>
+            <option value="26" selected>Bi-Weekly</option>
+            <option value="52">Weekly</option>
+          </select>
+        </div>
+      </div>
+      <div id="paycheck-cards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
+    </div>
+
+    <!-- EXPENSE TRACKER -->
+    <div class="section-sep">Expense Tracker</div>
+    <div class="card">
+      <div class="card-header">Add Expense</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Description</label>
+          <input class="field-input" id="exp-desc" placeholder="Netflix subscription" />
+        </div>
+        <div class="field-group" style="max-width:160px;">
+          <label class="field-label">Category</label>
+          <select class="field-input" id="exp-cat">
+            <option value="housing">Housing</option>
+            <option value="food">Food & Groceries</option>
+            <option value="transport">Transport</option>
+            <option value="utilities">Utilities</option>
+            <option value="health">Health</option>
+            <option value="insurance">Insurance</option>
+            <option value="debt">Debt Payments</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="dining">Dining Out</option>
+            <option value="shopping">Shopping</option>
+            <option value="subscriptions">Subscriptions</option>
+            <option value="personal">Personal Care</option>
+            <option value="education">Education</option>
+            <option value="savings">Savings/Investment</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field-group" style="max-width:160px;">
+          <label class="field-label">Amount</label>
+          <input class="field-input" type="number" id="exp-amount" placeholder="0" />
+        </div>
+        <div class="field-group" style="max-width:150px;">
+          <label class="field-label">Frequency</label>
+          <select class="field-input" id="exp-freq">
+            <option value="monthly">Monthly</option>
+            <option value="annual">Annual</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addExpense()">＋ Add</button>
+      </div>
+    </div>
+
+    <!-- EXPENSE LIST + CHART -->
+    <div class="two-col">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="card-header" style="margin:0;">Monthly Expenses</div>
+          <button class="btn btn-danger btn-sm" onclick="clearExpenses()">Clear All</button>
+        </div>
+        <div id="expense-list"></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:18px;">
+          <div class="card-header">Spending by Category</div>
+          <div class="chart-wrap" style="height:240px;"><canvas id="expenseChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header">Cash Flow Analysis</div>
+          <div id="cashflow-analysis"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUDGET VS ACTUAL -->
+    <div class="card">
+      <div class="card-header">Budget vs Actual by Category</div>
+      <div id="budget-vs-actual"></div>
+    </div>
+
+    <!-- SAVINGS STRATEGIES -->
+    <div class="card">
+      <div class="card-header">Savings Boost Scenarios</div>
+      <div id="savings-scenarios"></div>
+    </div>
+
+  </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let budgetDonutChart = null;
+let expenseChart = null;
+let currentRule = '50-30-20';
+let customBuckets = [
+  { name:'Needs',   pct:50, color:'#22c98a' },
+  { name:'Wants',   pct:30, color:'#60a5fa' },
+  { name:'Savings', pct:20, color:'#c084fc' },
+];
+let expenses = [];
+
+const RULES_CONFIG = {
+  '50-30-20': { name:'50/30/20 Rule', buckets:[{name:'Needs (housing, food, transport)',pct:50,color:'#22c98a'},{name:'Wants (dining, entertainment)',pct:30,color:'#60a5fa'},{name:'Savings & Debt Payoff',pct:20,color:'#c084fc'}] },
+  '70-20-10': { name:'70/20/10 Rule', buckets:[{name:'Living Expenses',pct:70,color:'#22c98a'},{name:'Savings & Investments',pct:20,color:'#60a5fa'},{name:'Debt Payoff / Giving',pct:10,color:'#f26464'}] },
+  '80-20':    { name:'80/20 Pay Yourself First', buckets:[{name:'Life (all expenses)',pct:80,color:'#22c98a'},{name:'Savings (automated)',pct:20,color:'#c084fc'}] },
+  'zero':     { name:'Zero-Based Budget', buckets:[{name:'Fixed Expenses',pct:40,color:'#22c98a'},{name:'Variable Expenses',pct:25,color:'#60a5fa'},{name:'Savings',pct:20,color:'#c084fc'},{name:'Discretionary',pct:10,color:'#f59e0b'},{name:'Buffer',pct:5,color:'#94a3b8'}] },
+  '60-20-20': { name:'60/20/20 Rule', buckets:[{name:'Committed Expenses',pct:60,color:'#22c98a'},{name:'Retirement / Savings',pct:20,color:'#c084fc'},{name:'Fun / Irregular',pct:20,color:'#f59e0b'}] },
+  'dave':     { name:'Dave Ramsey Zero-Based', buckets:[{name:'Giving',pct:10,color:'#f59e0b'},{name:'Savings (Baby Steps)',pct:15,color:'#c084fc'},{name:'Housing',pct:25,color:'#22c98a'},{name:'Transport',pct:10,color:'#60a5fa'},{name:'Food',pct:10,color:'#4ade80'},{name:'Insurance/Health',pct:10,color:'#94a3b8'},{name:'Personal',pct:10,color:'#f87171'},{name:'Recreation',pct:5,color:'#fb923c'},{name:'Clothing',pct:5,color:'#a78bfa'}] },
+  'kakeibo':  { name:'Kakeibo (Japanese Method)', buckets:[{name:'Survival (needs)',pct:50,color:'#22c98a'},{name:'Culture & Education',pct:10,color:'#60a5fa'},{name:'Optional (wants)',pct:20,color:'#f59e0b'},{name:'Unexpected',pct:5,color:'#f26464'},{name:'Savings',pct:15,color:'#c084fc'}] },
+};
+
+const CAT_CONFIG = {
+  housing:       { label:'Housing',      icon:'🏠', color:'#22c98a', bucket:'needs' },
+  food:          { label:'Groceries',    icon:'🛒', color:'#4ade80', bucket:'needs' },
+  transport:     { label:'Transport',    icon:'🚗', color:'#60a5fa', bucket:'needs' },
+  utilities:     { label:'Utilities',    icon:'💡', color:'#818cf8', bucket:'needs' },
+  health:        { label:'Health',       icon:'❤', color:'#fb7185', bucket:'needs' },
+  insurance:     { label:'Insurance',    icon:'🛡', color:'#94a3b8', bucket:'needs' },
+  debt:          { label:'Debt Payments',icon:'📋', color:'#f26464', bucket:'needs' },
+  entertainment: { label:'Entertainment',icon:'🎮', color:'#f59e0b', bucket:'wants' },
+  dining:        { label:'Dining Out',   icon:'🍽', color:'#fb923c', bucket:'wants' },
+  shopping:      { label:'Shopping',     icon:'🛍', color:'#e879f9', bucket:'wants' },
+  subscriptions: { label:'Subscriptions',icon:'📱', color:'#a78bfa', bucket:'wants' },
+  personal:      { label:'Personal Care',icon:'✨', color:'#2dd4bf', bucket:'wants' },
+  education:     { label:'Education',    icon:'📚', color:'#34d399', bucket:'wants' },
+  savings:       { label:'Savings',      icon:'💰', color:'#c084fc', bucket:'savings' },
+  other:         { label:'Other',        icon:'◈',  color:'#6b7585', bucket:'wants' },
+};
+
+function toMonthly(amount, freq) {
+  if (freq === 'annual') return amount / 12;
+  if (freq === 'weekly')  return amount * 52 / 12;
+  return amount;
+}
+
+function getMonthlyIncome() {
+  return (parseFloat(document.getElementById('monthlyIncome')?.value)||0) + (parseFloat(document.getElementById('extraIncome')?.value)||0);
+}
+
+function loadFromPaycheck() {
+  const saved = getSalaryData();
+  if (!saved.salary) { alert('Please set up your salary in the Paycheck page first.'); return; }
+  const annualNet = saved.salary * (1 - (saved.taxRate||25)/100);
+  const monthlyNet = annualNet / 12;
+  document.getElementById('monthlyIncome').value = Math.round(monthlyNet);
+  updateBudget();
+}
+
+function selectRule(rule, el) {
+  currentRule = rule;
+  document.querySelectorAll('.rule-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('custom-wrap').style.display = rule === 'custom' ? 'block' : 'none';
+  updateBudget();
+}
+
+function getBuckets() {
+  if (currentRule === 'custom') return customBuckets;
+  return RULES_CONFIG[currentRule]?.buckets || RULES_CONFIG['50-30-20'].buckets;
+}
+
+function addCustomBucket() {
+  customBuckets.push({ name: 'New Bucket', pct: 0, color: '#6b7585' });
+  renderCustomBuckets();
+  updateBudget();
+}
+
+function renderCustomBuckets() {
+  document.getElementById('custom-buckets').innerHTML = customBuckets.map((b,i) => `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <input class="field-input" style="flex:2;" value="${b.name}" oninput="customBuckets[${i}].name=this.value;updateBudget();" />
+      <input class="field-input" type="number" style="width:70px;flex-shrink:0;" value="${b.pct}" min="0" max="100"
+        oninput="customBuckets[${i}].pct=parseFloat(this.value)||0;updateBudget();" />
+      <span style="font-size:12px;color:var(--c-muted);">%</span>
+      <button class="del-btn" onclick="customBuckets.splice(${i},1);renderCustomBuckets();updateBudget();">✕</button>
+    </div>`).join('');
+  const total = customBuckets.reduce((s,b)=>s+b.pct,0);
+  const warn = document.getElementById('custom-total-warn');
+  if (!warn) document.getElementById('custom-buckets').insertAdjacentHTML('beforeend', `<div id="custom-total-warn" style="font-size:12px;margin-top:6px;"></div>`);
+  document.getElementById('custom-total-warn').textContent = `Total: ${total}% ${total !== 100 ? '⚠ Should equal 100%' : '✓'}`;
+  document.getElementById('custom-total-warn').style.color = total === 100 ? 'var(--c-green)' : 'var(--c-amber)';
+}
+
+function updateBudget() {
+  const income = getMonthlyIncome();
+  const cur = getSetting('currency') || 'USD';
+  const f = n => formatCurrency(n, cur);
+  const buckets = getBuckets();
+  const savedPct = buckets.find(b => b.name.toLowerCase().includes('sav'))?.pct || 20;
+  const monthlySavings = income * savedPct / 100;
+  const totalExpenses  = income - monthlySavings;
+  const actualSpent    = expenses.reduce((s,e) => s + toMonthly(e.amount, e.freq), 0);
+  const remaining      = income - actualSpent;
+
+  // Load salary info
+  const sal = getSalaryData();
+  const grossMonthly = sal.salary ? sal.salary / 12 : income;
+  document.getElementById('b-gross').textContent     = f(grossMonthly);
+  document.getElementById('b-takehome').textContent  = f(income);
+  document.getElementById('b-expenses').textContent  = f(totalExpenses);
+  document.getElementById('b-savings').textContent   = f(monthlySavings);
+  document.getElementById('b-actual').textContent    = f(actualSpent);
+  document.getElementById('b-remaining').textContent = f(remaining);
+  document.getElementById('b-remaining').style.color = remaining >= 0 ? 'var(--c-green)' : 'var(--c-red)';
+
+  // Framework label
+  const rc = RULES_CONFIG[currentRule];
+  if (rc) document.getElementById('framework-name').textContent = rc.name + ' Allocation';
+
+  // Alloc bars
+  document.getElementById('alloc-bars').innerHTML = buckets.map(b => {
+    const monthly = income * b.pct / 100;
+    const actualInCat = expenses.filter(e => {
+      const catB = CAT_CONFIG[e.category]?.bucket;
+      const bLow = b.name.toLowerCase();
+      if (bLow.includes('sav') || bLow.includes('invest')) return catB === 'savings';
+      if (bLow.includes('need') || bLow.includes('fixed') || bLow.includes('commit') || bLow.includes('surv') || bLow.includes('living') || bLow.includes('housing')) return catB === 'needs';
+      return catB === 'wants';
+    }).reduce((s,e) => s + toMonthly(e.amount, e.freq), 0);
+    const overBudget = actualInCat > monthly && actualInCat > 0;
+    return `<div class="alloc-item">
+      <div class="alloc-header">
+        <div class="alloc-label" style="color:${b.color};">${b.name} <span style="font-size:10px;font-family:var(--font-mono);">${b.pct}%</span></div>
+        <div class="alloc-values">${f(monthly)}/mo ${actualInCat>0?`· Actual: <span style="color:${overBudget?'var(--c-red)':'var(--c-green)'}">${f(actualInCat)}</span>`:''}</div>
+      </div>
+      <div class="alloc-bar-track">
+        <div class="alloc-bar-fill" style="width:${b.pct}%;background:${b.color};"></div>
+        ${actualInCat>0?`<div style="position:absolute;left:0;top:0;height:100%;width:${Math.min(100,actualInCat/income*100)}%;background:${overBudget?'rgba(242,100,100,0.3)':'rgba(34,201,138,0.3)'};" title="Actual spend"></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Savings rate display
+  const sr = income > 0 ? (monthlySavings / income * 100) : 0;
+  const srColor = sr >= 20 ? 'var(--c-green)' : sr >= 10 ? 'var(--c-amber)' : 'var(--c-red)';
+  document.getElementById('savings-rate-display').innerHTML = `
+    <div style="display:flex;align-items:baseline;gap:10px;">
+      <div style="font-family:var(--font-mono);font-size:28px;color:${srColor};">${sr.toFixed(1)}%</div>
+      <div style="font-size:12px;color:var(--c-muted);">${f(monthlySavings)}/mo · ${f(monthlySavings*12)}/yr</div>
+    </div>
+    <div class="progress-track" style="margin-top:8px;height:6px;"><div class="progress-fill" style="width:${Math.min(100,sr/20*100)}%;background:${srColor};"></div></div>
+    <div style="font-size:11px;color:var(--c-muted);margin-top:4px;">Target: 20% savings rate</div>`;
+
+  // Donut
+  renderBudgetDonut(buckets, income);
+
+  // Paycheck cards
+  const bFreq = parseInt(document.getElementById('bPayFreq')?.value || 26);
+  const pcIncome = income / (12 / (bFreq === 52 ? 4.33 : bFreq === 26 ? 2.167 : 1));
+  document.getElementById('paycheck-cards').innerHTML = buckets.map(b => {
+    const pcAmt = pcIncome * b.pct / 100;
+    return `<div class="card-sm" style="border-left:3px solid ${b.color};">
+      <div class="kpi-label">${b.name}</div>
+      <div class="kpi-value" style="color:${b.color};font-size:18px;">${f(pcAmt)}</div>
+      <div class="kpi-sub">${b.pct}% · per ${freqLabel(bFreq)}</div>
+    </div>`;
+  }).join('');
+
+  // Save to shared state
+  setSetting('budgetRule', currentRule);
+  setSetting('savingsPct', savedPct);
+
+  renderCashflowAnalysis(income, actualSpent, monthlySavings, cur);
+  renderBudgetVsActual(buckets, income, cur);
+  renderSavingsScenarios(income, monthlySavings, cur);
+}
+
+function renderBudgetDonut(buckets, income) {
+  const ctx = document.getElementById('budgetDonut').getContext('2d');
+  if (budgetDonutChart) budgetDonutChart.destroy();
+  budgetDonutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: buckets.map(b=>b.name),
+      datasets:[{ data: buckets.map(b=>b.pct), backgroundColor: buckets.map(b=>b.color), borderWidth:2, borderColor:'#13161c' }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins: { legend:{display:false}, tooltip:{ callbacks:{ label:c=>` ${c.label}: ${c.parsed}%` }}}
+    }
+  });
+  document.getElementById('donut-legend').innerHTML = buckets.map(b => {
+    const amt = income * b.pct / 100;
+    const cur = getSetting('currency') || 'USD';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+      <div style="width:9px;height:9px;border-radius:2px;background:${b.color};flex-shrink:0;"></div>
+      <div style="font-size:12px;flex:1;">${b.name}</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--c-muted);">${b.pct}%</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:${b.color};">${formatCurrency(amt, cur)}</div>
+    </div>`;
+  }).join('');
+}
+
+function addExpense() {
+  const desc   = document.getElementById('exp-desc').value.trim();
+  const cat    = document.getElementById('exp-cat').value;
+  const amount = parseFloat(document.getElementById('exp-amount').value)||0;
+  const freq   = document.getElementById('exp-freq').value;
+  if (!desc || !amount) return;
+  expenses.push({ id:Date.now(), desc, category:cat, amount, freq });
+  saveExpenses(expenses);
+  document.getElementById('exp-desc').value = '';
+  document.getElementById('exp-amount').value = '';
+  renderExpenses();
+  updateBudget();
+}
+
+function deleteExpense(id) {
+  expenses = expenses.filter(e=>e.id!==id);
+  saveExpenses(expenses);
+  renderExpenses();
+  updateBudget();
+}
+
+function clearExpenses() {
+  if (!confirm('Clear all expenses?')) return;
+  expenses = [];
+  saveExpenses(expenses);
+  renderExpenses();
+  updateBudget();
+}
+
+function renderExpenses() {
+  const el = document.getElementById('expense-list');
+  const cur = getSetting('currency') || 'USD';
+  const f = n => formatCurrency(n, cur);
+  if (!expenses.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">◈</div>No expenses added yet</div>';
+    return;
+  }
+  const total = expenses.reduce((s,e) => s + toMonthly(e.amount, e.freq), 0);
+  el.innerHTML = expenses.map(e => {
+    const cfg = CAT_CONFIG[e.category] || CAT_CONFIG.other;
+    const monthly = toMonthly(e.amount, e.freq);
+    return `<div class="account-row">
+      <div class="acct-left">
+        <div class="acct-icon" style="background:${cfg.color}22;">${cfg.icon}</div>
+        <div>
+          <div class="acct-name">${e.desc}</div>
+          <div class="acct-type">${cfg.label} · ${e.freq}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div>
+          <div class="acct-amount" style="color:var(--c-red);">${f(e.amount)}</div>
+          ${e.freq !== 'monthly' ? `<div style="font-size:10px;color:var(--c-muted);">${f(monthly)}/mo</div>` : ''}
+        </div>
+        <button class="del-btn" onclick="deleteExpense(${e.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('') + `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid var(--border2);font-weight:700;font-family:var(--font-mono);">
+    <span>TOTAL/MO</span><span style="color:var(--c-red);">${f(total)}</span>
+  </div>`;
+
+  // Expense chart
+  renderExpenseChart(cur);
+}
+
+function renderExpenseChart(cur) {
+  const catTotals = {};
+  expenses.forEach(e => {
+    const m = toMonthly(e.amount, e.freq);
+    catTotals[e.category] = (catTotals[e.category] || 0) + m;
+  });
+  const labels = Object.keys(catTotals).map(k => CAT_CONFIG[k]?.label || k);
+  const data   = Object.values(catTotals);
+  const colors = Object.keys(catTotals).map(k => CAT_CONFIG[k]?.color || '#6b7585');
+
+  const ctx = document.getElementById('expenseChart').getContext('2d');
+  if (expenseChart) expenseChart.destroy();
+  if (!data.length) return;
+
+  expenseChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#13161c' }] },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins: {
+        legend: { position:'right', labels:{ color:'#6b7585', font:{size:11}, boxWidth:10, padding:8 } },
+        tooltip: { callbacks: { label: c => ` ${c.label}: ${formatCurrency(c.parsed,cur)}` } }
+      }
+    }
+  });
+}
+
+function renderCashflowAnalysis(income, spent, savings, cur) {
+  const f = n => formatCurrency(n, cur);
+  const cashflow = income - spent;
+  document.getElementById('cashflow-analysis').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span>Monthly Income</span><span style="font-family:var(--font-mono);color:var(--c-green);">+ ${f(income)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span>Monthly Expenses</span><span style="font-family:var(--font-mono);color:var(--c-red);">− ${f(spent)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:9px 0;font-size:14px;font-weight:700;">
+        <span>Monthly Cash Flow</span>
+        <span style="font-family:var(--font-mono);color:${cashflow>=0?'var(--c-green)':'var(--c-red)'};">${cashflow>=0?'+ ':''} ${f(cashflow)}</span>
+      </div>
+      <div style="font-size:11px;color:var(--c-muted);">Annual surplus: ${f(cashflow*12)}</div>
+      ${cashflow < 0 ? '<div class="alert alert-danger" style="margin-top:8px;">⚠ Spending exceeds income. Review expenses.</div>' : ''}
+      ${cashflow > 0 && cashflow < savings ? '<div class="alert alert-warn" style="margin-top:8px;">⚡ Cash flow positive but below savings target.</div>' : ''}
+      ${cashflow >= savings ? '<div class="alert alert-success" style="margin-top:8px;">✓ On track with savings plan.</div>' : ''}
+    </div>`;
+}
+
+function renderBudgetVsActual(buckets, income, cur) {
+  const f = n => formatCurrency(n, cur);
+  const catSpending = {};
+  expenses.forEach(e => {
+    const b = CAT_CONFIG[e.category]?.bucket || 'wants';
+    catSpending[b] = (catSpending[b]||0) + toMonthly(e.amount, e.freq);
+  });
+
+  document.getElementById('budget-vs-actual').innerHTML = buckets.map(b => {
+    const budgeted = income * b.pct / 100;
+    const bLow = b.name.toLowerCase();
+    const key = bLow.includes('sav') ? 'savings' : (bLow.includes('need')||bLow.includes('fixed')||bLow.includes('commit')) ? 'needs' : 'wants';
+    const actual = catSpending[key] || 0;
+    const diff = budgeted - actual;
+    const overPct = budgeted > 0 ? Math.min(100, actual/budgeted*100) : 0;
+    return `<div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <div style="font-size:13px;font-weight:600;color:${b.color};">${b.name}</div>
+        <div style="font-family:var(--font-mono);font-size:12px;">
+          <span style="color:var(--c-muted);">Budget ${f(budgeted)}</span>
+          <span style="margin:0 6px;color:var(--c-muted);">·</span>
+          <span style="color:${actual>0?(diff>=0?'var(--c-green)':'var(--c-red)'):'var(--c-muted)'};">Actual ${actual>0?f(actual):'No data'}</span>
+        </div>
+      </div>
+      <div style="position:relative;height:10px;background:var(--surface2);border-radius:20px;overflow:hidden;">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${b.pct}%;background:${b.color}44;border-radius:20px;"></div>
+        <div style="position:absolute;left:0;top:0;height:100%;width:${overPct}%;background:${actual>budgeted?'#f26464':b.color};border-radius:20px;transition:width 0.5s;"></div>
+      </div>
+      ${diff !== 0 && actual > 0 ? `<div style="font-size:11px;margin-top:4px;color:${diff>=0?'var(--c-green)':'var(--c-red)'};">${diff>=0?`${f(diff)} under budget`:`${f(Math.abs(diff))} OVER budget`}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderSavingsScenarios(income, savings, cur) {
+  const f = n => formatCurrency(n, cur);
+  const scenarios = [10, 15, 20, 25, 30].map(pct => {
+    const monthly = income * pct / 100;
+    const y1 = calcFutureValue(0, 7, 1, monthly);
+    const y5 = calcFutureValue(0, 7, 5, monthly);
+    const y10 = calcFutureValue(0, 7, 10, monthly);
+    const y30 = calcFutureValue(0, 7, 30, monthly);
+    return { pct, monthly, y1, y5, y10, y30 };
+  });
+  document.getElementById('savings-scenarios').innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="deduction-table" style="min-width:600px;">
+        <thead><tr>
+          <th>Savings Rate</th><th style="text-align:right">Monthly</th>
+          <th style="text-align:right">1 Year</th><th style="text-align:right">5 Years</th>
+          <th style="text-align:right">10 Years</th><th style="text-align:right">30 Years (7%)</th>
+        </tr></thead>
+        <tbody>${scenarios.map(s => `
+          <tr style="${Math.abs(s.pct - savings/income*100) < 2 ? 'background:var(--c-accent-d);' : ''}">
+            <td style="color:${s.pct>=20?'var(--c-green)':'var(--c-muted)'};">${s.pct}% ${Math.abs(s.pct - (savings/income||0)*100) < 2 ? '← you' : ''}</td>
+            <td style="text-align:right;font-family:var(--font-mono);">${f(s.monthly)}</td>
+            <td style="text-align:right;font-family:var(--font-mono);">${f(s.y1)}</td>
+            <td style="text-align:right;font-family:var(--font-mono);">${f(s.y5)}</td>
+            <td style="text-align:right;font-family:var(--font-mono);">${f(s.y10)}</td>
+            <td style="text-align:right;font-family:var(--font-mono);color:var(--c-green);">${f(s.y30)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:11px;color:var(--c-muted);margin-top:10px;">Projections assume 7% annual return. Actual results vary.</div>`;
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  const cur = getSetting('currency') || 'USD';
+  const sel = document.querySelector('.currency-select');
+  if (sel) {
+    Object.keys(CURRENCIES).forEach(c => {
+      const o = document.createElement('option'); o.value=c; o.textContent=c;
+      if (c===cur) o.selected=true; sel.appendChild(o);
+    });
+  }
+
+  expenses = getExpenses();
+  const bd = getBudgetData();
+  if (bd.rule) { currentRule = bd.rule; document.querySelectorAll('.rule-card').forEach(c=>c.classList.remove('selected')); const el=document.getElementById('rule-'+bd.rule); if(el)el.classList.add('selected'); if(bd.rule==='custom' && bd.customBuckets) customBuckets=bd.customBuckets; }
+
+  const saved = getSalaryData();
+  if (saved.salary) {
+    const net = saved.salary*(1-(saved.taxRate||25)/100)/12;
+    document.getElementById('monthlyIncome').value = Math.round(net);
+  }
+
+  renderExpenses();
+  renderCustomBuckets();
+  updateBudget();
+});
+</script>
+</body>
+</html>
