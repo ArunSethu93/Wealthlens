@@ -229,7 +229,7 @@ function setSalaryData(data) {
 
 function getSalaryData() {
   return getJSON('salaryData', {
-    salary: 0, taxRate: 25, freq: 12,
+    salary: 0, taxRate: 0, freq: 12,
     k401: 0, healthIns: 0, fsa: 0, hsa: 0, otherPretax: 0,
     postTaxDeduct: 0, overtimePay: 0, bonusPay: 0, sideIncome: 0
   });
