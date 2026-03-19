@@ -405,7 +405,7 @@ function calc() {
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
       <div class="card-sm"><div class="kpi-label">Your Base Salary</div><div class="kpi-value green">${f(salary)}</div></div>
       <div class="card-sm"><div class="kpi-label">Employer 401k Match</div><div class="kpi-value blue">${f(employerMatchAmt)}</div></div>
-      <div class="card-sm"><div class="kpi-label">Total Compensation</div><div class="kpi-value" style="color:var(--c-accent);">${f(salary + employerMatchAmt + (healthIns*0.7))}</div></div>
+      <div class="card-sm"><div class="kpi-label">Total Compensation</div><div class="kpi-value" style="color:var(--c-accent);">${f(salary + employerMatchAmt)}</div></div>
     </div>
     <div class="alert alert-info">Employer 401(k) match of <strong>${f(employerMatchAmt)}/yr</strong> is free money — contribute at least <strong>${employerMatch.toFixed(0)}%</strong> to capture it fully.</div>
   `;
