@@ -394,7 +394,7 @@ function updateBudget() {
 
   // Paycheck cards
   const bFreq = parseInt(document.getElementById('bPayFreq')?.value || 26);
-  const pcIncome = income / (12 / (bFreq === 52 ? 4.33 : bFreq === 26 ? 2.167 : 1));
+  const pcIncome = income * 12 / bFreq;
   document.getElementById('paycheck-cards').innerHTML = buckets.map(b => {
     const pcAmt = pcIncome * b.pct / 100;
     return `<div class="card-sm" style="border-left:3px solid ${b.color};">
