@@ -390,3 +390,15 @@ input[type=range]::-webkit-slider-thumb {
   .health-hero { flex-direction: column; }
   .rule-grid { grid-template-columns: repeat(2,1fr); }
 }
+/* Mobile table scroll */
+@media (max-width: 680px) {
+  .deduction-table {
+    overflow-x: auto;
+    display: block;
+    width: 100%;
+  }
+  /* Per-paycheck cards grid: 2 columns instead of 4 */
+  #paycheck-cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
