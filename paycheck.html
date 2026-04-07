@@ -8,7 +8,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
-
 <div class="app-layout">
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -29,7 +28,6 @@
       </div>
     </div>
   </aside>
-
   <main class="main-content">
     <header class="topbar">
       <div>
@@ -41,8 +39,6 @@
         <button class="btn btn-primary btn-sm" onclick="saveAndSync()">Save & Sync</button>
       </div>
     </header>
-
-    <!-- INPUTS -->
     <div class="card">
       <div class="card-header">Income & Pay Settings</div>
       <div class="field-row">
@@ -73,8 +69,6 @@
         </div>
       </div>
     </div>
-
-    <!-- TAX SETTINGS -->
     <div class="two-col">
       <div class="card">
         <div class="card-header">Tax Method</div>
@@ -93,7 +87,6 @@
         </div>
         <div style="font-size:12px;color:var(--c-muted);" id="tax-regime-label">Using: US Federal (Single) 2024</div>
       </div>
-
       <div class="card">
         <div class="card-header">State/Local Tax</div>
         <div class="field-row">
@@ -108,8 +101,6 @@
         </div>
       </div>
     </div>
-
-    <!-- PRE-TAX DEDUCTIONS -->
     <div class="two-col">
       <div class="card">
         <div class="card-header">Pre-Tax Deductions (reduce taxable income)</div>
@@ -149,7 +140,6 @@
           </div>
         </div>
       </div>
-
       <div class="card">
         <div class="card-header">Post-Tax Deductions</div>
         <div class="field-row">
@@ -180,71 +170,32 @@
         </div>
       </div>
     </div>
-
-    <!-- RESULT: SALARY BAR -->
     <div class="salary-bar" id="salary-bar">
-      <div class="sbar-item">
-        <div class="sbar-label">Gross Annual</div>
-        <div class="sbar-value" id="r-gross">—</div>
-      </div>
-      <div class="sbar-item">
-        <div class="sbar-label">Total Tax</div>
-        <div class="sbar-value" style="color:var(--c-red);" id="r-tax">—</div>
-      </div>
-      <div class="sbar-item">
-        <div class="sbar-label">Pre-Tax Deductions</div>
-        <div class="sbar-value" style="color:var(--c-amber);" id="r-pretax">—</div>
-      </div>
-      <div class="sbar-item">
-        <div class="sbar-label">Post-Tax Deductions</div>
-        <div class="sbar-value" style="color:var(--c-amber);" id="r-posttax">—</div>
-      </div>
-      <div class="sbar-item">
-        <div class="sbar-label">Net Annual Take-Home</div>
-        <div class="sbar-value" style="color:var(--c-accent);" id="r-net">—</div>
-      </div>
-      <div class="sbar-item">
-        <div class="sbar-label">Per Paycheck</div>
-        <div class="sbar-value" style="color:var(--c-green);" id="r-paycheck">—</div>
-      </div>
+      <div class="sbar-item"><div class="sbar-label">Gross Annual</div><div class="sbar-value" id="r-gross">—</div></div>
+      <div class="sbar-item"><div class="sbar-label">Total Tax</div><div class="sbar-value" style="color:var(--c-red);" id="r-tax">—</div></div>
+      <div class="sbar-item"><div class="sbar-label">Pre-Tax Deductions</div><div class="sbar-value" style="color:var(--c-amber);" id="r-pretax">—</div></div>
+      <div class="sbar-item"><div class="sbar-label">Post-Tax Deductions</div><div class="sbar-value" style="color:var(--c-amber);" id="r-posttax">—</div></div>
+      <div class="sbar-item"><div class="sbar-label">Net Annual Take-Home</div><div class="sbar-value" style="color:var(--c-accent);" id="r-net">—</div></div>
+      <div class="sbar-item"><div class="sbar-label">Per Paycheck</div><div class="sbar-value" style="color:var(--c-green);" id="r-paycheck">—</div></div>
     </div>
-
-    <!-- DETAILED BREAKDOWN TABLE + CHART -->
     <div class="two-col">
       <div class="card">
         <div class="card-header">Full Paycheck Breakdown</div>
         <table class="deduction-table" id="breakdown-table">
-          <thead>
-            <tr><th>Item</th><th style="text-align:right">Annual</th><th style="text-align:right">Per Paycheck</th><th style="text-align:right">% Gross</th></tr>
-          </thead>
+          <thead><tr><th>Item</th><th style="text-align:right">Annual</th><th style="text-align:right">Per Paycheck</th><th style="text-align:right">% Gross</th></tr></thead>
           <tbody id="breakdown-body"></tbody>
         </table>
       </div>
-
       <div>
         <div class="card" style="margin-bottom:18px;">
           <div class="card-header">Income Allocation</div>
           <div class="chart-wrap" style="height:220px;"><canvas id="incomeChart"></canvas></div>
         </div>
-
-        <!-- TAX BRACKET VISUALIZATION -->
-        <div class="card">
-          <div class="card-header">Tax Bracket Breakdown</div>
-          <div id="bracket-vis"></div>
-        </div>
+        <div class="card"><div class="card-header">Tax Bracket Breakdown</div><div id="bracket-vis"></div></div>
       </div>
     </div>
-
-    <!-- EFFECTIVE RATE CARDS -->
     <div class="three-col" id="rate-cards" style="margin-top:0;"></div>
-
-    <!-- TOTAL COMPENSATION -->
-    <div class="card">
-      <div class="card-header">Total Compensation Package</div>
-      <div id="total-comp"></div>
-    </div>
-
-    <!-- YTD TRACKER -->
+    <div class="card"><div class="card-header">Total Compensation Package</div><div id="total-comp"></div></div>
     <div class="card">
       <div class="card-header">Year-to-Date Tracker</div>
       <div class="field-row" style="margin-bottom:12px;">
@@ -255,202 +206,103 @@
       </div>
       <div id="ytd-table"></div>
     </div>
-
   </main>
 </div>
-
 <script src="shared.js"></script>
 <script>
 let incomeChart = null;
-
-function syncK401(val) {
-  document.getElementById('k401Pct-disp').textContent = parseFloat(val).toFixed(1) + '%';
-  calc();
-}
-
+function syncK401(val) { document.getElementById('k401Pct-disp').textContent = parseFloat(val).toFixed(1) + '%'; calc(); }
 function v(id, def=0) { return parseFloat(document.getElementById(id)?.value || def) || def; }
 function str(id) { return document.getElementById(id)?.value || ''; }
-
 function calc() {
   const cur = getSetting('currency') || 'USD';
   const f = n => formatCurrency(n, cur);
-
-  const salary     = v('salary', 75000);
-  const bonus      = v('bonusPay');
-  const overtime   = v('overtimePay');
-  const sideIncome = v('sideIncome');
-  const freqVal    = parseInt(str('payfreq') || '26');
-
-  // Pre-tax deductions
-  const k401Pct      = v('k401Pct', 6);
-  const employerMatch= v('employerMatch', 3);
-  const healthIns    = v('healthIns');
-  const fsa          = v('fsa');
-  const hsa          = v('hsa');
-  const otherPretax  = v('otherPretax');
-  const k401Annual   = salary * k401Pct / 100;
-  const preTaxTotal  = k401Annual + healthIns + fsa + hsa + otherPretax;
-
-  // Post-tax deductions
-  const roth         = v('roth');
-  const lifeIns      = v('lifeIns');
-  const unionDues    = v('unionDues');
-  const postTaxOther = v('postTaxOther');
-  const garnishment  = v('garnishment');
-  const postTaxTotal = roth + lifeIns + unionDues + postTaxOther + garnishment;
-
-  // Total gross
-  const totalGross = salary + bonus + overtime + sideIncome;
-
-  // Taxable income = gross - pre-tax deductions
-  const taxableIncome = Math.max(0, totalGross - preTaxTotal);
-
-  // Tax calculation
-  const taxMethod = str('taxMethod');
-  const stateRate = v('stateRate');
-  const localRate = v('localRate');
-
+  const salary = v('salary', 75000), bonus = v('bonusPay'), overtime = v('overtimePay'), sideIncome = v('sideIncome'), freqVal = parseInt(str('payfreq') || '26');
+  const k401Pct = v('k401Pct', 6), employerMatch= v('employerMatch', 3), healthIns = v('healthIns'), fsa = v('fsa'), hsa = v('hsa'), otherPretax = v('otherPretax');
+  const k401Annual = salary * k401Pct / 100, preTaxTotal = k401Annual + healthIns + fsa + hsa + otherPretax;
+  const roth = v('roth'), lifeIns = v('lifeIns'), unionDues = v('unionDues'), postTaxOther = v('postTaxOther'), garnishment = v('garnishment'), postTaxTotal = roth + lifeIns + unionDues + postTaxOther + garnishment;
+  const totalGross = salary + bonus + overtime + sideIncome, taxableIncome = Math.max(0, totalGross - preTaxTotal);
+  const taxMethod = str('taxMethod'), stateRate = v('stateRate'), localRate = v('localRate');
   let taxDetails;
   if (taxMethod === 'flat') {
-    const flatRate = v('flatRate', 25);
-    const incomeTax = taxableIncome * flatRate / 100;
+    const flatRate = v('flatRate', 25), incomeTax = taxableIncome * flatRate / 100;
     taxDetails = { grossAnnual: totalGross, incomeTax, socialSecurity:0, medicare:0, nationalInsurance:0, totalTax:incomeTax, netAnnual:totalGross-incomeTax, effectiveRate:flatRate, marginalRate:flatRate, config:'Flat rate' };
   } else {
     taxDetails = calcTaxDetails(taxableIncome, cur);
     document.getElementById('tax-regime-label').textContent = 'Using: ' + taxDetails.config;
   }
-
-  const stateTax = taxableIncome * stateRate / 100;
-  const localTax = taxableIncome * localRate / 100;
-  const totalAllTax = taxDetails.totalTax + stateTax + localTax;
-  const effectiveTotalRate = totalGross > 0 ? (totalAllTax / totalGross) * 100 : 0;
-
-  // Net
-  const netAnnual = totalGross - totalAllTax - preTaxTotal - postTaxTotal;
-  const netPaycheck = netAnnual / freqVal;
-
-  // --- RENDER ---
-  document.getElementById('r-gross').textContent    = f(totalGross);
-  document.getElementById('r-tax').textContent      = f(totalAllTax);
-  document.getElementById('r-pretax').textContent   = f(preTaxTotal);
-  document.getElementById('r-posttax').textContent  = f(postTaxTotal);
-  document.getElementById('r-net').textContent      = f(netAnnual);
+  const stateTax = taxableIncome * stateRate / 100, localTax = taxableIncome * localRate / 100, totalAllTax = taxDetails.totalTax + stateTax + localTax;
+  const effectiveTotalRate = totalGross > 0 ? (totalAllTax / totalGross) * 100 : 0, netAnnual = totalGross - totalAllTax - preTaxTotal - postTaxTotal, netPaycheck = netAnnual / freqVal;
+  document.getElementById('r-gross').textContent = f(totalGross);
+  document.getElementById('r-tax').textContent = f(totalAllTax);
+  document.getElementById('r-pretax').textContent = f(preTaxTotal);
+  document.getElementById('r-posttax').textContent = f(postTaxTotal);
+  document.getElementById('r-net').textContent = f(netAnnual);
   document.getElementById('r-paycheck').textContent = f(netPaycheck);
-
-  // Breakdown table
-  const freq = freqLabel(freqVal);
   const rows = [
-    { label:'Gross Base Salary',               annual: salary,       cls:'positive' },
-    bonus      > 0 ? { label:'Bonus Pay',      annual: bonus,        cls:'positive' } : null,
-    overtime   > 0 ? { label:'Overtime Pay',   annual: overtime,     cls:'positive' } : null,
-    sideIncome > 0 ? { label:'Side Income',    annual: sideIncome,   cls:'positive' } : null,
-    { label:'Total Gross Income',              annual: totalGross,   cls:'positive', bold:true },
-    { label:'— — Pre-Tax Deductions — —',     annual: null },
+    { label:'Gross Base Salary', annual: salary, cls:'positive' },
+    bonus > 0 ? { label:'Bonus Pay', annual: bonus, cls:'positive' } : null,
+    overtime > 0 ? { label:'Overtime Pay', annual: overtime, cls:'positive' } : null,
+    sideIncome > 0 ? { label:'Side Income', annual: sideIncome, cls:'positive' } : null,
+    { label:'Total Gross Income', annual: totalGross, cls:'positive', bold:true },
+    { label:'— — Pre-Tax Deductions — —', annual: null },
     { label:'401(k) / Pension ('+k401Pct.toFixed(1)+'%)', annual: -k401Annual, cls:'negative' },
-    healthIns  > 0 ? { label:'Health Insurance',    annual:-healthIns,  cls:'negative' } : null,
-    fsa        > 0 ? { label:'FSA Contribution',     annual:-fsa,        cls:'negative' } : null,
-    hsa        > 0 ? { label:'HSA Contribution',     annual:-hsa,        cls:'negative' } : null,
-    otherPretax> 0 ? { label:'Other Pre-Tax',        annual:-otherPretax,cls:'negative' } : null,
-    { label:'Taxable Income',                  annual: taxableIncome,  cls:'positive', bold:true },
-    { label:'— — Taxes — —',                  annual: null },
-    { label:'Federal / National Income Tax',   annual:-taxDetails.incomeTax,   cls:'negative' },
+    healthIns > 0 ? { label:'Health Insurance', annual:-healthIns, cls:'negative' } : null,
+    fsa > 0 ? { label:'FSA Contribution', annual:-fsa, cls:'negative' } : null,
+    hsa > 0 ? { label:'HSA Contribution', annual:-hsa, cls:'negative' } : null,
+    otherPretax> 0 ? { label:'Other Pre-Tax', annual:-otherPretax,cls:'negative' } : null,
+    { label:'Taxable Income', annual: taxableIncome, cls:'positive', bold:true },
+    { label:'— — Taxes — —', annual: null },
+    { label:'Federal / National Income Tax', annual:-taxDetails.incomeTax, cls:'negative' },
     taxDetails.socialSecurity > 0 ? { label:'Social Security (6.2%)', annual:-taxDetails.socialSecurity, cls:'negative' } : null,
-    taxDetails.medicare > 0 ? { label:'Medicare (1.45%+)',            annual:-taxDetails.medicare,       cls:'negative' } : null,
-    taxDetails.nationalInsurance > 0 ? { label:'National Insurance',  annual:-taxDetails.nationalInsurance, cls:'negative' } : null,
-    stateRate  > 0 ? { label:'State Tax ('+stateRate+'%)',            annual:-stateTax,    cls:'negative' } : null,
-    localRate  > 0 ? { label:'Local / City Tax ('+localRate+'%)',     annual:-localTax,    cls:'negative' } : null,
-    { label:'Total Tax',                       annual:-totalAllTax,    cls:'negative', bold:true },
-    { label:'— — Post-Tax Deductions — —',    annual: null },
-    roth        > 0 ? { label:'Roth 401(k)/IRA',     annual:-roth,        cls:'negative' } : null,
-    lifeIns     > 0 ? { label:'Life Insurance',       annual:-lifeIns,     cls:'negative' } : null,
-    unionDues   > 0 ? { label:'Union Dues',            annual:-unionDues,   cls:'negative' } : null,
-    postTaxOther> 0 ? { label:'Other Post-Tax',        annual:-postTaxOther,cls:'negative' } : null,
-    garnishment > 0 ? { label:'Garnishments',          annual:-garnishment, cls:'negative' } : null,
-    { label:'NET TAKE-HOME',                   annual: netAnnual,      cls:'positive', bold:true, total:true },
+    taxDetails.medicare > 0 ? { label:'Medicare (1.45%+)', annual:-taxDetails.medicare, cls:'negative' } : null,
+    taxDetails.nationalInsurance > 0 ? { label:'National Insurance', annual:-taxDetails.nationalInsurance, cls:'negative' } : null,
+    stateRate > 0 ? { label:'State Tax ('+stateRate+'%)', annual:-stateTax, cls:'negative' } : null,
+    localRate > 0 ? { label:'Local / City Tax ('+localRate+'%)', annual:-localTax, cls:'negative' } : null,
+    { label:'Total Tax', annual:-totalAllTax, cls:'negative', bold:true },
+    { label:'— — Post-Tax Deductions — —', annual: null },
+    roth > 0 ? { label:'Roth 401(k)/IRA', annual:-roth, cls:'negative' } : null,
+    lifeIns > 0 ? { label:'Life Insurance', annual:-lifeIns, cls:'negative' } : null,
+    unionDues > 0 ? { label:'Union Dues', annual:-unionDues, cls:'negative' } : null,
+    postTaxOther> 0 ? { label:'Other Post-Tax', annual:-postTaxOther,cls:'negative' } : null,
+    garnishment > 0 ? { label:'Garnishments', annual:-garnishment, cls:'negative' } : null,
+    { label:'NET TAKE-HOME', annual: netAnnual, cls:'positive', bold:true, total:true },
   ].filter(Boolean);
-
   document.getElementById('breakdown-body').innerHTML = rows.map(r => {
     if (r.annual === null) return `<tr><td colspan="4" style="padding:10px 0 6px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--c-muted);">${r.label}</td></tr>`;
-    const pct = totalGross > 0 ? Math.abs(r.annual / totalGross * 100).toFixed(1) + '%' : '—';
-    const cls = r.bold ? 'total-row' : '';
-    const color = r.cls === 'positive' ? 'var(--c-green)' : r.cls === 'negative' ? 'var(--c-red)' : '';
-    return `<tr class="${cls}">
-      <td style="${r.bold?'font-weight:700;':''}">${r.label}</td>
-      <td style="text-align:right;font-family:var(--font-mono);color:${color};">${f(Math.abs(r.annual))}</td>
-      <td style="text-align:right;font-family:var(--font-mono);color:${color};">${f(Math.abs(r.annual)/freqVal)}</td>
-      <td style="text-align:right;font-size:11px;color:var(--c-muted);">${pct}</td>
-    </tr>`;
+    const pct = totalGross > 0 ? Math.abs(r.annual / totalGross * 100).toFixed(1) + '%' : '—', cls = r.bold ? 'total-row' : '', color = r.cls === 'positive' ? 'var(--c-green)' : r.cls === 'negative' ? 'var(--c-red)' : '';
+    return `<tr class="${cls}"><td style="${r.bold?'font-weight:700;':''}">${r.label}</td><td style="text-align:right;font-family:var(--font-mono);color:${color};">${f(Math.abs(r.annual))}</td><td style="text-align:right;font-family:var(--font-mono);color:${color};">${f(Math.abs(r.annual)/freqVal)}</td><td style="text-align:right;font-size:11px;color:var(--c-muted);">${pct}</td></tr>`;
   }).join('');
-
-  // Rate cards
   const rates = [
     { label:'Effective Tax Rate (all taxes)', val: effectiveTotalRate.toFixed(2)+'%', sub:'total tax ÷ gross', color: effectiveTotalRate > 35 ? 'var(--c-red)' : 'var(--c-text)' },
-    { label:'Marginal Tax Rate (federal)',    val: taxDetails.marginalRate.toFixed(0)+'%', sub:'rate on last dollar', color:'var(--c-text)' },
-    { label:'Take-Home Rate',                val: totalGross > 0 ? (netAnnual/totalGross*100).toFixed(1)+'%' : '—', sub:'net ÷ gross', color:'var(--c-green)' },
+    { label:'Marginal Tax Rate (federal)', val: taxDetails.marginalRate.toFixed(0)+'%', sub:'rate on last dollar', color:'var(--c-text)' },
+    { label:'Take-Home Rate', val: totalGross > 0 ? (netAnnual/totalGross*100).toFixed(1)+'%' : '—', sub:'net ÷ gross', color:'var(--c-green)' },
   ];
-  document.getElementById('rate-cards').innerHTML = rates.map(r => `
-    <div class="kpi-card"><div class="kpi-label">${r.label}</div>
-    <div class="kpi-value" style="color:${r.color};">${r.val}</div>
-    <div class="kpi-sub">${r.sub}</div></div>`).join('');
-
-  // Tax bracket vis
+  document.getElementById('rate-cards').innerHTML = rates.map(r => `<div class="kpi-card"><div class="kpi-label">${r.label}</div><div class="kpi-value" style="color:${r.color};">${r.val}</div><div class="kpi-sub">${r.sub}</div></div>`).join('');
   renderBracketVis(taxableIncome, cur, taxDetails);
-
-  // Income chart
   renderIncomeChart(totalGross, totalAllTax, preTaxTotal, postTaxTotal, netAnnual, cur);
-
-  // Total comp
   const employerMatchAmt = salary * employerMatch / 100;
-  document.getElementById('total-comp').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
-      <div class="card-sm"><div class="kpi-label">Your Base Salary</div><div class="kpi-value green">${f(salary)}</div></div>
-      <div class="card-sm"><div class="kpi-label">Employer 401k Match</div><div class="kpi-value blue">${f(employerMatchAmt)}</div></div>
-      <div class="card-sm"><div class="kpi-label">Total Compensation</div><div class="kpi-value" style="color:var(--c-accent);">${f(salary + employerMatchAmt)}</div></div>
-    </div>
-    <div class="alert alert-info">Employer 401(k) match of <strong>${f(employerMatchAmt)}/yr</strong> is free money — contribute at least <strong>${employerMatch.toFixed(0)}%</strong> to capture it fully.</div>
-  `;
-
-  // Save to shared state
+  document.getElementById('total-comp').innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;"><div class="card-sm"><div class="kpi-label">Your Base Salary</div><div class="kpi-value green">${f(salary)}</div></div><div class="card-sm"><div class="kpi-label">Employer 401k Match</div><div class="kpi-value blue">${f(employerMatchAmt)}</div></div><div class="card-sm"><div class="kpi-label">Total Compensation</div><div class="kpi-value" style="color:var(--c-accent);">${f(salary + employerMatchAmt)}</div></div></div><div class="alert alert-info">Employer 401(k) match of <strong>${f(employerMatchAmt)}/yr</strong> is free money — contribute at least <strong>${employerMatch.toFixed(0)}%</strong> to capture it fully.</div>`;
   setSalaryData({ salary:totalGross, taxRate: effectiveTotalRate, freq:freqVal, k401:k401Annual, healthIns, fsa, hsa, otherPretax, postTaxDeduct:postTaxTotal, overtimePay:overtime, bonusPay:bonus, sideIncome });
-
   renderYTD(netPaycheck, totalAllTax/freqVal, preTaxTotal/freqVal, postTaxTotal/freqVal);
 }
-
 function renderBracketVis(taxableIncome, cur, taxDetails) {
   const config = getTaxBrackets(cur);
-  if (!config || !config.brackets) {
-    document.getElementById('bracket-vis').innerHTML = `<div style="padding:12px;font-size:12px;color:var(--c-muted);">Tax brackets not available for ${cur}. Using flat rate estimate.</div>`;
-    return;
-  }
+  if (!config || !config.brackets) { document.getElementById('bracket-vis').innerHTML = `<div style="padding:12px;font-size:12px;color:var(--c-muted);">Tax brackets not available for ${cur}. Using flat rate estimate.</div>`; return; }
   const f = n => formatCurrency(n, cur);
-  let html = '';
-  let prev = 0;
+  let html = '', prev = 0;
   for (const b of config.brackets) {
-    const low = prev;
-    const high = b.upTo === Infinity ? taxableIncome : b.upTo;
+    const low = prev, high = b.upTo === Infinity ? taxableIncome : b.upTo;
     if (low >= taxableIncome) break;
-    const taxable = Math.min(taxableIncome, b.upTo) - prev;
-    const taxInBracket = taxable * b.rate;
-    const inBracket = taxableIncome > low;
+    const taxable = Math.min(taxableIncome, b.upTo) - prev, taxInBracket = taxable * b.rate, inBracket = taxableIncome > low;
     const isCurrentBracket = taxableIncome > low && taxableIncome <= (b.upTo === Infinity ? Infinity : b.upTo);
     const pctFilled = b.upTo === Infinity ? 100 : Math.min(100, ((taxableIncome - low) / (b.upTo - low)) * 100);
     const color = b.rate === 0 ? '#22c98a' : b.rate < 0.2 ? '#60a5fa' : b.rate < 0.3 ? '#f59e0b' : b.rate < 0.4 ? '#fb923c' : '#f26464';
-    html += `<div style="margin-bottom:10px;opacity:${inBracket?1:0.35};">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;">
-        <span style="color:var(--c-muted);">${f(low)} – ${b.upTo===Infinity?'∞':f(b.upTo)}</span>
-        <span style="color:${color};font-family:var(--font-mono);">${(b.rate*100).toFixed(0)}% → ${inBracket?f(taxInBracket):'$0'}</span>
-        ${isCurrentBracket?'<span class="tag tag-accent" style="font-size:10px;">You are here</span>':''}
-      </div>
-      <div class="alloc-bar-track">
-        <div class="alloc-bar-fill" style="width:${inBracket?pctFilled:0}%;background:${color};"></div>
-      </div>
-    </div>`;
-    prev = b.upTo;
-    if (b.upTo >= taxableIncome) break;
+    html += `<div style="margin-bottom:10px;opacity:${inBracket?1:0.35};"><div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;"><span style="color:var(--c-muted);">${f(low)} – ${b.upTo===Infinity?'∞':f(b.upTo)}</span><span style="color:${color};font-family:var(--font-mono);">${(b.rate*100).toFixed(0)}% → ${inBracket?f(taxInBracket):'$0'}</span>${isCurrentBracket?'<span class="tag tag-accent" style="font-size:10px;">You are here</span>':''}</div><div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:${inBracket?pctFilled:0}%;background:${color};"></div></div></div>`;
+    prev = b.upTo; if (b.upTo >= taxableIncome) break;
   }
   document.getElementById('bracket-vis').innerHTML = html || '<div style="font-size:12px;color:var(--c-muted);">Enter salary to see brackets</div>';
 }
-
 function renderIncomeChart(gross, tax, pretax, posttax, net, cur) {
   const ctx = document.getElementById('incomeChart').getContext('2d');
   if (incomeChart) incomeChart.destroy();
@@ -459,9 +311,9 @@ function renderIncomeChart(gross, tax, pretax, posttax, net, cur) {
     data: {
       labels: ['Annual Allocation'],
       datasets: [
-        { label:`Net Take-Home`,  data:[net],     backgroundColor:'#22c98a', borderRadius:4, stack:'a' },
-        { label:`Income Tax`,     data:[tax],     backgroundColor:'#f26464', borderRadius:4, stack:'a' },
-        { label:`Pre-Tax Deduct`, data:[pretax],  backgroundColor:'#f59e0b', borderRadius:4, stack:'a' },
+        { label:`Net Take-Home`, data:[net], backgroundColor:'#22c98a', borderRadius:4, stack:'a' },
+        { label:`Income Tax`, data:[tax], backgroundColor:'#f26464', borderRadius:4, stack:'a' },
+        { label:`Pre-Tax Deduct`, data:[pretax], backgroundColor:'#f59e0b', borderRadius:4, stack:'a' },
         { label:`Post-Tax Deduct`,data:[posttax], backgroundColor:'#c084fc', borderRadius:4, stack:'a' },
       ]
     },
@@ -478,64 +330,26 @@ function renderIncomeChart(gross, tax, pretax, posttax, net, cur) {
     }
   });
 }
-
 function renderYTD(netPc, taxPc, prePc, postPc) {
   if (!netPc) {
     const stored = getSalaryData();
-    const annualNet = stored.salary*(1-(stored.taxRate||25)/100);
-    const freq = stored.freq || 26;
-    netPc  = annualNet / freq;
-    taxPc  = (stored.salary * (stored.taxRate||25)/100) / freq;
-    prePc  = (stored.k401||0)/freq;
-    postPc = (stored.postTaxDeduct||0)/freq;
+    const annualNet = stored.salary*(1-(stored.taxRate||25)/100), freq = stored.freq || 26;
+    netPc = annualNet / freq; taxPc = (stored.salary * (stored.taxRate||25)/100) / freq; prePc = (stored.k401||0)/freq; postPc = (stored.postTaxDeduct||0)/freq;
   }
-  const ytdCount = parseInt(document.getElementById('ytdPaychecks')?.value || 1);
-  const cur = getSetting('currency') || 'USD';
-  const f = n => formatCurrency(n, cur);
-  const freq = parseInt(str('payfreq') || '26');
-  const remaining = freq - ytdCount;
-
-  document.getElementById('ytd-table').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;">
-      <div class="card-sm"><div class="kpi-label">YTD Gross Earned</div><div class="kpi-value green">${f(v('salary',75000)/freq*ytdCount)}</div><div class="kpi-sub">${ytdCount} paychecks</div></div>
-      <div class="card-sm"><div class="kpi-label">YTD Tax Paid</div><div class="kpi-value red">${f(taxPc*ytdCount)}</div><div class="kpi-sub">federal + state</div></div>
-      <div class="card-sm"><div class="kpi-label">YTD Net Pay</div><div class="kpi-value" style="color:var(--c-accent);">${f(netPc*ytdCount)}</div><div class="kpi-sub">take-home received</div></div>
-      <div class="card-sm"><div class="kpi-label">Remaining Paychecks</div><div class="kpi-value blue">${remaining}</div><div class="kpi-sub">${f(netPc*remaining)} ahead</div></div>
-    </div>
-    <div style="margin-bottom:8px;font-size:12px;color:var(--c-muted);">Year progress: ${ytdCount} / ${freq} paychecks (${(ytdCount/freq*100).toFixed(1)}%)</div>
-    <div class="progress-track" style="height:8px;"><div class="progress-fill" style="width:${(ytdCount/freq*100)}%;background:var(--c-accent);"></div></div>
-  `;
+  const ytdCount = parseInt(document.getElementById('ytdPaychecks')?.value || 1), cur = getSetting('currency') || 'USD', f = n => formatCurrency(n, cur), freq = parseInt(str('payfreq') || '26'), remaining = freq - ytdCount;
+  document.getElementById('ytd-table').innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;"><div class="card-sm"><div class="kpi-label">YTD Gross Earned</div><div class="kpi-value green">${f(v('salary',75000)/freq*ytdCount)}</div><div class="kpi-sub">${ytdCount} paychecks</div></div><div class="card-sm"><div class="kpi-label">YTD Tax Paid</div><div class="kpi-value red">${f(taxPc*ytdCount)}</div><div class="kpi-sub">federal + state</div></div><div class="card-sm"><div class="kpi-label">YTD Net Pay</div><div class="kpi-value" style="color:var(--c-accent);">${f(netPc*ytdCount)}</div><div class="kpi-sub">take-home received</div></div><div class="card-sm"><div class="kpi-label">Remaining Paychecks</div><div class="kpi-value blue">${remaining}</div><div class="kpi-sub">${f(netPc*remaining)} ahead</div></div></div><div style="margin-bottom:8px;font-size:12px;color:var(--c-muted);">Year progress: ${ytdCount} / ${freq} paychecks (${(ytdCount/freq*100).toFixed(1)}%)</div><div class="progress-track" style="height:8px;"><div class="progress-fill" style="width:${(ytdCount/freq*100)}%;background:var(--c-accent);"></div></div>`;
 }
-
-// Init currency dropdowns
 document.addEventListener('DOMContentLoaded', () => {
-  const cur = getSetting('currency') || 'USD';
-  const sel = document.querySelector('.currency-select');
-  if (sel) {
-    Object.keys(CURRENCIES).forEach(c => {
-      const o = document.createElement('option');
-      o.value = c; o.textContent = c;
-      if (c === cur) o.selected = true;
-      sel.appendChild(o);
-    });
-  }
-
-  // Load saved salary data
+  const cur = getSetting('currency') || 'USD', sel = document.querySelector('.currency-select');
+  if (sel) { Object.keys(CURRENCIES).forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; if (c === cur) o.selected = true; sel.appendChild(o); }); }
   const saved = getSalaryData();
   if (saved.salary) document.getElementById('salary').value = saved.salary;
   if (saved.taxRate) document.getElementById('flatRate').value = saved.taxRate;
   if (saved.k401) { const k401pct = saved.salary ? (saved.k401/saved.salary*100) : 6; document.getElementById('k401Pct').value = k401pct; document.getElementById('k401Pct-disp').textContent = k401pct.toFixed(1)+'%'; }
   if (saved.healthIns) document.getElementById('healthIns').value = saved.healthIns;
-
   calc();
 });
-
-function saveAndSync() {
-  calc();
-  const btn = document.querySelector('.btn-primary');
-  btn.textContent = '✓ Saved!';
-  setTimeout(() => btn.textContent = 'Save & Sync', 1500);
-}
+function saveAndSync() { calc(); const btn = document.querySelector('.btn-primary'); btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = 'Save & Sync', 1500); }
 </script>
 </body>
 </html>
